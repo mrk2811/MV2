@@ -23,7 +23,8 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('MV2 API')
     .setDescription('Multi-tenant dating infrastructure platform API')
-    .setVersion('0.1.0')
+    .setVersion('0.2.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

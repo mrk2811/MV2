@@ -11,6 +11,7 @@ datasource db {
 
 model User {
   id                String             @id @default(uuid())
+  clerkId           String?            @unique
   phone             String?            @unique
   email             String?            @unique
   globalDisplayName String

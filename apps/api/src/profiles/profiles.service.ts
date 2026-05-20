@@ -25,17 +25,20 @@ export class ProfilesService {
     return profile;
   }
 
-  async create(dto: CreateProfileDto) {
+  async create(dto: CreateProfileDto, currentUserId?: string) {
+    const userId = dto.userId || currentUserId;
+    if (!userId) throw new ConflictException('userId is required');
+
     const existing = await this.prisma.localProfile.findUnique({
       where: {
-        userId_tenantId: { userId: dto.userId, tenantId: dto.tenantId },
+        userId_tenantId: { userId, tenantId: dto.tenantId },
       },
     });
     if (existing) throw new ConflictException('Profile already exists for this community');
 
     return this.prisma.localProfile.create({
       data: {
-        userId: dto.userId,
+        userId,
         tenantId: dto.tenantId,
         displayName: dto.displayName,
         age: dto.age,
@@ -51,7 +54,7 @@ export class ProfilesService {
     });
   }
 
-  async update(id: string, dto: UpdateProfileDto) {
+  async update(id: string, dto: UpdateProfileDto, _currentUserId?: string) {
     await this.findById(id);
     const data: Record<string, unknown> = { ...dto };
     if (dto.prompts) {

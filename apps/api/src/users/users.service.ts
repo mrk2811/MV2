@@ -37,7 +37,10 @@ export class UsersService {
     return this.prisma.user.create({ data: dto });
   }
 
-  async update(id: string, dto: UpdateUserDto) {
+  async update(id: string, dto: UpdateUserDto, currentUserId?: string) {
+    if (currentUserId && currentUserId !== id) {
+      throw new NotFoundException('Cannot update another user');
+    }
     await this.findById(id);
     return this.prisma.user.update({ where: { id }, data: dto });
   }
