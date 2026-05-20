@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Global User Account ───────────────────────────────────────────
+
+model User {
+  id                String             @id @default(uuid())
+  phone             String?            @unique
+  email             String?            @unique
+  globalDisplayName String
+  globalBio         String?
+  globalPhotos      String[]           @default([])
+  dateOfBirth       DateTime?
+  gender            String?
+  verificationState String             @default("UNVERIFIED")
+  safetyScore       Int                @default(100)
+  strikeCount       Int                @default(0)
+  isBanned          Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  tenantMemberships TenantMembership[]
+  localProfiles     LocalProfile[]
+  applications      Application[]
+  ownedTenants      Tenant[]           @relation("TenantAdmin")
+  sentMessages      Message[]
+  moderationActions ModerationAction[] @relation("ModeratedUser")
+  issuedActions     ModerationAction[] @relation("Moderator")
+  tokenLedger       TokenLedger[]
+  likesGiven        Like[]             @relation("LikeFrom")
+  likesReceived     Like[]             @relation("LikeTo")
+
+  @@index([phone])
+  @@index([email])
+}
+
+// ─── Tenant (Community / Admin Group) ──────────────────────────────
+
+model Tenant {
+  id                  String   @id @default(uuid())
+  slug                String   @unique
+  name                String
+  description         String?
+  logoUrl             String?
+  accentColor         String   @default("#E63946")
+  themeMode           String   @default("DARK")
+  layoutType          String   @default("PROMPT_FIRST_FEED")
+  adminUserId         String
+  adminPseudonym      String?
+  geographicAnchor    String?
+  anchorLink          String?
+  welcomeMessage      String?
+  pricingType         String   @default("FREE")
+  subscriptionPrice   Float?
+  tokenCost           Int?
+  acceptsPassport     Boolean  @default(false)
+  matchmakerEnabled   Boolean  @default(false)
+  gatekeeperQuestions Json     @default("[]")
+  communityRules      Json     @default("[]")
+  customTags          Json     @default("[]")
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  admin         User               @relation("TenantAdmin", fields: [adminUserId], references: [id])
+  memberships   TenantMembership[]
+  localProfiles LocalProfile[]
+  applications  Application[]
+  matches       Match[]
+  conversations Conversation[]
+  moderations   ModerationAction[]
+  announcements Announcement[]
+
+  @@index([slug])
+  @@index([adminUserId])
+}
+
+// ─── Tenant Membership ─────────────────────────────────────────────
+
+model TenantMembership {
+  id           String    @id @default(uuid())
+  userId       String
+  tenantId     String
+  status       String    @default("PENDING_REVIEW")
+  role         String    @default("MEMBER")
+  joinedAt     DateTime  @default(now())
+  approvedBy   String?
+  expiresAt    DateTime?
+
+  user   User   @relation(fields: [userId], references: [id])
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([userId, tenantId])
+  @@index([tenantId, status])
+}
+
+// ─── Local Profile (Per-Group Persona) ─────────────────────────────
+
+model LocalProfile {
+  id          String   @id @default(uuid())
+  userId      String
+  tenantId    String
+  displayName String
+  age         Int?
+  photos      String[] @default([])
+  bio         String?
+  prompts     Json     @default("[]")
+  customTags  Json     @default("{}")
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([userId, tenantId])
+  @@index([tenantId, isVisible])
+}
+
+// ─── Application (Doorbell) ────────────────────────────────────────
+
+model Application {
+  id         String    @id @default(uuid())
+  userId     String
+  tenantId   String
+  answers    Json      @default("{}")
+  status     String    @default("PENDING")
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([userId, tenantId])
+  @@index([tenantId, status])
+}
+
+// ─── Likes / Interest ──────────────────────────────────────────────
+
+model Like {
+  id        String   @id @default(uuid())
+  tenantId  String
+  fromUserId String
+  toUserId   String
+  type      String   @default("INTEREST")
+  promptRef String?
+  createdAt DateTime @default(now())
+
+  fromUser User @relation("LikeFrom", fields: [fromUserId], references: [id])
+  toUser   User @relation("LikeTo", fields: [toUserId], references: [id])
+
+  @@unique([tenantId, fromUserId, toUserId])
+  @@index([tenantId, toUserId])
+}
+
+// ─── Match ─────────────────────────────────────────────────────────
+
+model Match {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userAId   String
+  userBId   String
+  state     String   @default("MUTUAL")
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, userAId, userBId])
+  @@index([tenantId])
+}
+
+// ─── Conversation ──────────────────────────────────────────────────
+
+model Conversation {
+  id             String   @id @default(uuid())
+  tenantId       String
+  participantIds String[]
+  createdAt      DateTime @default(now())
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  messages Message[]
+
+  @@index([tenantId])
+}
+
+// ─── Message ───────────────────────────────────────────────────────
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation(fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+}
+
+// ─── Moderation Action ─────────────────────────────────────────────
+
+model ModerationAction {
+  id            String   @id @default(uuid())
+  tenantId      String
+  targetUserId  String
+  moderatorId   String
+  ruleReference String?
+  actionType    String
+  reason        String?
+  createdAt     DateTime @default(now())
+
+  tenant    Tenant @relation(fields: [tenantId], references: [id])
+  target    User   @relation("ModeratedUser", fields: [targetUserId], references: [id])
+  moderator User   @relation("Moderator", fields: [moderatorId], references: [id])
+
+  @@index([tenantId, targetUserId])
+}
+
+// ─── Token Ledger (Immutable) ──────────────────────────────────────
+
+model TokenLedger {
+  id              String    @id @default(uuid())
+  userId          String
+  transactionType String
+  tokenDelta      Int
+  usdValue        Float?
+  escrowState     String?
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+// ─── Announcements ─────────────────────────────────────────────────
+
+model Announcement {
+  id        String   @id @default(uuid())
+  tenantId  String
+  title     String
+  body      String
+  isPinned  Boolean  @default(false)
+  ticketUrl String?
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, createdAt])
+}

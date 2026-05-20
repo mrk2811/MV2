@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "MV2",
+    "slug": "mv2",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "mv2",
+    "splash": {
+      "backgroundColor": "#0F0F10"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.mv2.app"
+    },
+    "android": {
+      "package": "com.mv2.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0F0F10"
+      }
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
