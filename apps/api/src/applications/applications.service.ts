@@ -29,34 +29,43 @@ export class ApplicationsService {
     });
   }
 
-  async create(dto: CreateApplicationDto) {
+  async create(dto: CreateApplicationDto, currentUserId?: string) {
+    const userId = dto.userId || currentUserId;
+    if (!userId) throw new ConflictException('userId is required');
+
     const existing = await this.prisma.application.findUnique({
       where: {
-        userId_tenantId: { userId: dto.userId, tenantId: dto.tenantId },
+        userId_tenantId: { userId, tenantId: dto.tenantId },
       },
     });
     if (existing) throw new ConflictException('Application already submitted');
 
     return this.prisma.application.create({
       data: {
-        userId: dto.userId,
+        userId,
         tenantId: dto.tenantId,
         answers: dto.answers,
       },
     });
   }
 
-  async review(applicationId: string, dto: ReviewApplicationDto) {
+  async review(
+    applicationId: string,
+    dto: ReviewApplicationDto,
+    currentUserId?: string,
+  ) {
     const application = await this.prisma.application.findUnique({
       where: { id: applicationId },
     });
     if (!application) throw new NotFoundException('Application not found');
 
+    const reviewedBy = dto.reviewedBy || currentUserId;
+
     const updated = await this.prisma.application.update({
       where: { id: applicationId },
       data: {
         status: dto.status,
-        reviewedBy: dto.reviewedBy,
+        reviewedBy,
         reviewedAt: new Date(),
       },
     });

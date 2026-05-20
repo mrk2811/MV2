@@ -1,14 +1,24 @@
 import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto, UpdateProfileDto } from './profiles.dto';
+import { SkipTenant } from '../auth/decorators/require-tenant.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+
+interface AuthenticatedUser {
+  id: string;
+}
 
 @ApiTags('profiles')
+@ApiBearerAuth()
 @Controller('profiles')
+@SkipTenant()
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
   @Get('tenant/:tenantId')
+  @Roles('MEMBER')
   @ApiOperation({ summary: 'List visible profiles in a community' })
   findByTenant(@Param('tenantId') tenantId: string) {
     return this.profilesService.findByTenant(tenantId);
@@ -22,13 +32,20 @@ export class ProfilesController {
 
   @Post()
   @ApiOperation({ summary: 'Create a local profile for a community' })
-  create(@Body() dto: CreateProfileDto) {
-    return this.profilesService.create(dto);
+  create(
+    @Body() dto: CreateProfileDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.profilesService.create(dto, user.id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a local profile' })
-  update(@Param('id') id: string, @Body() dto: UpdateProfileDto) {
-    return this.profilesService.update(id, dto);
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateProfileDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.profilesService.update(id, dto, user.id);
   }
 }

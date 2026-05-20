@@ -64,15 +64,21 @@ export class TenantsService {
     return tenant;
   }
 
-  async create(dto: CreateTenantDto) {
+  async create(dto: CreateTenantDto, currentUserId?: string) {
     const existing = await this.prisma.tenant.findUnique({
       where: { slug: dto.slug },
     });
     if (existing) throw new ConflictException('Slug already taken');
 
+    const adminUserId = dto.adminUserId || currentUserId;
+    if (!adminUserId) {
+      throw new ConflictException('adminUserId is required');
+    }
+
     return this.prisma.tenant.create({
       data: {
         ...dto,
+        adminUserId,
         gatekeeperQuestions: dto.gatekeeperQuestions
           ? JSON.parse(JSON.stringify(dto.gatekeeperQuestions))
           : [],
