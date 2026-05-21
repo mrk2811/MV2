@@ -22,7 +22,7 @@ interface TenantDetail {
   pricingType: string;
   welcomeMessage: string | null;
   layoutType: string;
-  communityRules: unknown[];
+  communityRules: Array<{ id: string; text: string; order: number } | string>;
   _count?: { memberships: number };
 }
 
@@ -65,7 +65,9 @@ export default function LandingPage() {
 
   const accent = tenant.accentColor || '#E63946';
   const rules = Array.isArray(tenant.communityRules)
-    ? (tenant.communityRules as string[])
+    ? tenant.communityRules.map((r) =>
+        typeof r === 'string' ? r : r.text,
+      )
     : [];
 
   return (

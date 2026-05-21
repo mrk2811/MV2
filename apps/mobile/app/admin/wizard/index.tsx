@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StepIndicator } from '../../../src/components/StepIndicator';
 import { WizardButton } from '../../../src/components/WizardButton';
 import { InputField } from '../../../src/components/InputField';
+import { api } from '../../../src/api/client';
 
 const TOTAL_STEPS = 10;
 
@@ -51,10 +52,17 @@ interface WizardData {
   matchmakerEnabled: boolean;
 }
 
+interface WizardDraft {
+  id: string;
+  currentStep: number;
+  stepData: Record<string, unknown>;
+}
+
 export default function SetupWizard() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const draftId = useRef<string | null>(null);
   const [data, setData] = useState<WizardData>({
     name: '',
     slug: '',
@@ -93,7 +101,74 @@ export default function SetupWizard() {
       .trim();
   }, []);
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, TOTAL_STEPS));
+  useEffect(() => {
+    api
+      .post<WizardDraft>('/setup-wizard', {})
+      .then((draft) => {
+        draftId.current = draft.id;
+        if (draft.currentStep > 1) {
+          setStep(draft.currentStep);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const saveStepToApi = useCallback(
+    async (stepNum: number, stepData: Record<string, unknown>) => {
+      if (!draftId.current) return;
+      try {
+        await api.patch(`/setup-wizard/${draftId.current}/step`, {
+          step: stepNum,
+          data: stepData,
+        });
+      } catch {
+        // silent — local state is the source of truth during editing
+      }
+    },
+    [],
+  );
+
+  const getStepData = useCallback(
+    (stepNum: number): Record<string, unknown> => {
+      switch (stepNum) {
+        case 1:
+          return { name: data.name, slug: data.slug, description: data.description };
+        case 2:
+          return { adminPseudonym: data.adminPseudonym };
+        case 3:
+          return { geographicAnchor: data.geographicAnchor, anchorLink: data.anchorLink };
+        case 4:
+          return { logoUrl: data.logoUrl, accentColor: data.accentColor, themeMode: data.themeMode };
+        case 5:
+          return { layoutType: data.layoutType };
+        case 6:
+          return { gatekeeperQuestions: data.gatekeeperQuestions.filter((q) => q.trim()) };
+        case 7:
+          return { communityRules: data.communityRules.filter((r) => r.trim()) };
+        case 8:
+          return {
+            pricingType: data.pricingType,
+            subscriptionPrice: data.pricingType === 'SUBSCRIPTION' ? parseFloat(data.subscriptionPrice) || 9.99 : undefined,
+            tokenCost: data.pricingType === 'TOKEN' ? parseInt(data.tokenCost, 10) || 5 : undefined,
+            acceptsPassport: data.acceptsPassport,
+          };
+        case 9:
+          return {
+            welcomeMessage: data.welcomeMessage,
+            customTags: data.customTags.filter((t) => t.trim()),
+            matchmakerEnabled: data.matchmakerEnabled,
+          };
+        default:
+          return {};
+      }
+    },
+    [data],
+  );
+
+  const nextStep = () => {
+    saveStepToApi(step, getStepData(step));
+    setStep((s) => Math.min(s + 1, TOTAL_STEPS));
+  };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   const handleFinalize = async () => {
@@ -101,14 +176,57 @@ export default function SetupWizard() {
       Alert.alert('Missing Info', 'Community name and slug are required.');
       return;
     }
+    if (!draftId.current) {
+      Alert.alert('Error', 'No draft found. Please restart the wizard.');
+      return;
+    }
     setLoading(true);
     try {
-      // In a real flow, this would call the API to finalize
+      const questions = data.gatekeeperQuestions
+        .filter((q) => q.trim())
+        .map((text, i) => ({ id: `q${i + 1}`, text, type: 'FREE_TEXT' }));
+      const rules = data.communityRules
+        .filter((r) => r.trim())
+        .map((text, i) => ({ id: `r${i + 1}`, text, order: i + 1 }));
+      const tags = data.customTags
+        .filter((t) => t.trim())
+        .map((name) => ({ name }));
+
+      await api.post(`/setup-wizard/${draftId.current}/finalize`, {
+        name: data.name,
+        slug: data.slug,
+        description: data.description || undefined,
+        adminPseudonym: data.adminPseudonym || undefined,
+        geographicAnchor: data.geographicAnchor || undefined,
+        logoUrl: data.logoUrl || undefined,
+        accentColor: data.accentColor,
+        themeMode: data.themeMode,
+        layoutType: data.layoutType,
+        anchorLink: data.anchorLink || undefined,
+        gatekeeperQuestions: questions,
+        communityRules: rules,
+        pricingType: data.pricingType,
+        subscriptionPrice:
+          data.pricingType === 'SUBSCRIPTION'
+            ? parseFloat(data.subscriptionPrice) || 9.99
+            : undefined,
+        tokenCost:
+          data.pricingType === 'TOKEN'
+            ? parseInt(data.tokenCost, 10) || 5
+            : undefined,
+        acceptsPassport: data.acceptsPassport,
+        welcomeMessage: data.welcomeMessage || undefined,
+        customTags: tags,
+        matchmakerEnabled: data.matchmakerEnabled,
+      });
+
       Alert.alert('Community Created!', `${data.name} is now live.`, [
         { text: 'OK', onPress: () => router.replace('/') },
       ]);
-    } catch {
-      Alert.alert('Error', 'Failed to create community. Please try again.');
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to create community';
+      Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }

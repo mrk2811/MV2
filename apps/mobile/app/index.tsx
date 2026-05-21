@@ -1,16 +1,31 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useAuth, useUser } from '@clerk/clerk-expo';
 import { WizardButton } from '../src/components/WizardButton';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { signOut } = useAuth();
+  const { user } = useUser();
+
+  const displayName = user?.phoneNumbers?.[0]?.phoneNumber || 'Member';
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      <Text style={styles.logo}>MV2</Text>
-      <Text style={styles.tagline}>Your communities. Your dating pools.</Text>
+
+      <View style={styles.userRow}>
+        <Text style={styles.greeting}>Hey, {displayName}</Text>
+        <TouchableOpacity style={styles.signOutBtn} onPress={() => signOut()}>
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.hero}>
+        <Text style={styles.logo}>MV2</Text>
+        <Text style={styles.tagline}>Your communities. Your dating pools.</Text>
+      </View>
 
       <View style={styles.actions}>
         <WizardButton
@@ -36,6 +51,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
+  },
+  userRow: {
+    position: 'absolute',
+    top: 60,
+    left: 24,
+    right: 24,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  greeting: {
+    color: '#888892',
+    fontSize: 14,
+  },
+  signOutBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#2A2A2D',
+  },
+  signOutText: {
+    color: '#E63946',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  hero: {
+    alignItems: 'center',
   },
   logo: {
     fontSize: 48,

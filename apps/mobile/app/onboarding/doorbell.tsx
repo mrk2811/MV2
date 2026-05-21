@@ -13,11 +13,18 @@ import { WizardButton } from '../../src/components/WizardButton';
 import { InputField } from '../../src/components/InputField';
 import { api } from '../../src/api/client';
 
+interface GatekeeperQuestion {
+  id: string;
+  text: string;
+  type: string;
+  options?: string[];
+}
+
 interface TenantInfo {
   id: string;
   name: string;
   accentColor: string;
-  gatekeeperQuestions: string[];
+  gatekeeperQuestions: Array<GatekeeperQuestion | string>;
 }
 
 export default function DoorbellScreen() {
@@ -41,8 +48,9 @@ export default function DoorbellScreen() {
           ? data.gatekeeperQuestions
           : [];
         const initial: Record<string, string> = {};
-        questions.forEach((q, i) => {
-          initial[`q${i}`] = '';
+        questions.forEach((q) => {
+          const key = typeof q === 'string' ? q : q.id;
+          initial[key] = '';
         });
         setAnswers(initial);
       })
@@ -77,9 +85,13 @@ export default function DoorbellScreen() {
   }
 
   const accent = tenant?.accentColor || '#E63946';
-  const questions = Array.isArray(tenant?.gatekeeperQuestions)
-    ? (tenant.gatekeeperQuestions as string[])
+  const rawQuestions = Array.isArray(tenant?.gatekeeperQuestions)
+    ? tenant.gatekeeperQuestions
     : [];
+  const questions = rawQuestions.map((q) => ({
+    key: typeof q === 'string' ? q : q.id,
+    label: typeof q === 'string' ? q : q.text,
+  }));
 
   return (
     <View style={styles.container}>
@@ -101,14 +113,14 @@ export default function DoorbellScreen() {
             </Text>
           </View>
         ) : (
-          questions.map((question, i) => (
+          questions.map((q) => (
             <InputField
-              key={i}
-              label={String(question)}
+              key={q.key}
+              label={q.label}
               placeholder="Your answer..."
-              value={answers[`q${i}`] || ''}
+              value={answers[q.key] || ''}
               onChangeText={(text) =>
-                setAnswers((prev) => ({ ...prev, [`q${i}`]: text }))
+                setAnswers((prev) => ({ ...prev, [q.key]: text }))
               }
               multiline
             />
