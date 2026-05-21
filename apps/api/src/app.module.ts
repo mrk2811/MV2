@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { HealthModule } from './health/health.module';
+import { SetupWizardModule } from './setup-wizard/setup-wizard.module';
+import { OnboardingModule } from './onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { HealthModule } from './health/health.module';
     ApplicationsModule,
     ProfilesModule,
     HealthModule,
+    SetupWizardModule,
+    OnboardingModule,
   ],
 })
 export class AppModule {}
