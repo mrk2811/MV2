@@ -36,6 +36,7 @@ model User {
   tokenLedger       TokenLedger[]
   likesGiven        Like[]             @relation("LikeFrom")
   likesReceived     Like[]             @relation("LikeTo")
+  wizardDrafts      SetupWizardDraft[]
 
   @@index([phone])
   @@index([email])
@@ -76,7 +77,8 @@ model Tenant {
   matches       Match[]
   conversations Conversation[]
   moderations   ModerationAction[]
-  announcements Announcement[]
+  announcements  Announcement[]
+  wizardDraft    SetupWizardDraft?
 
   @@index([slug])
   @@index([adminUserId])
@@ -240,6 +242,24 @@ model TokenLedger {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId, createdAt])
+}
+
+// ─── Setup Wizard Draft (Admin Onboarding Progress) ─────────────
+
+model SetupWizardDraft {
+  id            String   @id @default(uuid())
+  adminUserId   String
+  currentStep   Int      @default(1)
+  isComplete    Boolean  @default(false)
+  tenantId      String?  @unique
+  data          Json     @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  admin  User    @relation(fields: [adminUserId], references: [id])
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+
+  @@index([adminUserId])
 }
 
 // ─── Announcements ─────────────────────────────────────────────────
