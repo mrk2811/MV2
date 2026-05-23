@@ -290,7 +290,6 @@ export default function SetupWizard() {
               value={data.description}
               onChangeText={(text) => updateField('description', text)}
               multiline
-              numberOfLines={3}
             />
           </View>
         );

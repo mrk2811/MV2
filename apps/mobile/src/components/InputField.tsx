@@ -10,6 +10,9 @@ export function InputField({
   label,
   hint,
   error,
+  multiline,
+  numberOfLines,
+  style,
   ...props
 }: InputFieldProps) {
   return (
@@ -17,8 +20,14 @@ export function InputField({
       <Text style={styles.label}>{label}</Text>
       {hint && <Text style={styles.hint}>{hint}</Text>}
       <TextInput
-        style={[styles.input, error && styles.inputError]}
+        style={[
+          styles.input,
+          multiline && { minHeight: 80, textAlignVertical: 'top' as const },
+          error && styles.inputError,
+          style,
+        ]}
         placeholderTextColor="#555"
+        multiline={multiline}
         {...props}
       />
       {error && <Text style={styles.error}>{error}</Text>}
