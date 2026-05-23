@@ -96,13 +96,28 @@ export default function SignUpScreen() {
     setLoading(true);
     try {
       const result = await signUp.update({ firstName, lastName });
+      const resultAny = result as unknown as Record<string, unknown>;
+      console.warn('[sign-up] update result:', JSON.stringify({
+        status: result.status,
+        sessionId: result.createdSessionId,
+        missingFields: resultAny.missingFields,
+        requiredFields: resultAny.requiredFields,
+        unverifiedFields: resultAny.unverifiedFields,
+        optionalFields: resultAny.optionalFields,
+      }));
+
       const sessionId = result.createdSessionId ?? signUp.createdSessionId;
       if (result.status === 'complete' && sessionId) {
         await setActive({ session: sessionId });
       } else if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId as string });
       } else {
-        Alert.alert('Error', 'Sign-up could not be completed. Please try again.');
+        const missing = (resultAny.missingFields as string[] | undefined) ?? [];
+        const missingStr = missing.length > 0 ? `\nMissing fields: ${missing.join(', ')}` : '';
+        Alert.alert(
+          'Almost there',
+          `Your Clerk project requires additional fields to complete sign-up (status: ${result.status}).${missingStr}\n\nTo simplify sign-up, go to Clerk Dashboard → Configure → Email, Phone, Username and set Name/Email to optional instead of required.`,
+        );
       }
     } catch (err: unknown) {
       const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
