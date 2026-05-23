@@ -16,7 +16,7 @@ import {
 import { useSignUp } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
 
-type SignUpStep = 'phone' | 'verify' | 'name';
+type SignUpStep = 'phone' | 'verify' | 'profile';
 
 export default function SignUpScreen() {
   const { signUp, setActive, isLoaded } = useSignUp();
@@ -25,6 +25,8 @@ export default function SignUpScreen() {
   const [code, setCode] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [step, setStep] = useState<SignUpStep>('phone');
   const [loading, setLoading] = useState(false);
 
@@ -72,7 +74,7 @@ export default function SignUpScreen() {
           await setActive({ session: sessionId });
         }
       } else if (result.status === 'missing_requirements') {
-        setStep('name');
+        setStep('profile');
       } else {
         Alert.alert('Verification', `Unexpected status: ${result.status}. Please try again.`);
       }
@@ -91,33 +93,26 @@ export default function SignUpScreen() {
     }
   }, [isLoaded, code, signUp, setActive]);
 
-  const onSubmitName = useCallback(async () => {
+  const onSubmitProfile = useCallback(async () => {
     if (!isLoaded || !signUp) return;
     setLoading(true);
     try {
-      const result = await signUp.update({ firstName, lastName });
-      const resultAny = result as unknown as Record<string, unknown>;
-      console.warn('[sign-up] update result:', JSON.stringify({
-        status: result.status,
-        sessionId: result.createdSessionId,
-        missingFields: resultAny.missingFields,
-        requiredFields: resultAny.requiredFields,
-        unverifiedFields: resultAny.unverifiedFields,
-        optionalFields: resultAny.optionalFields,
-      }));
+      const updateData: Record<string, string> = { firstName, lastName };
+      if (email.trim()) updateData.emailAddress = email.trim();
+      if (password) updateData.password = password;
 
+      const result = await signUp.update(updateData);
       const sessionId = result.createdSessionId ?? signUp.createdSessionId;
+
       if (result.status === 'complete' && sessionId) {
         await setActive({ session: sessionId });
       } else if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId as string });
       } else {
+        const resultAny = result as unknown as Record<string, unknown>;
         const missing = (resultAny.missingFields as string[] | undefined) ?? [];
-        const missingStr = missing.length > 0 ? `\nMissing fields: ${missing.join(', ')}` : '';
-        Alert.alert(
-          'Almost there',
-          `Your Clerk project requires additional fields to complete sign-up (status: ${result.status}).${missingStr}\n\nTo simplify sign-up, go to Clerk Dashboard → Configure → Email, Phone, Username and set Name/Email to optional instead of required.`,
-        );
+        const missingStr = missing.length > 0 ? ` (${missing.join(', ')})` : '';
+        Alert.alert('Almost there', `Additional fields still required${missingStr}. Please fill in all fields and try again.`);
       }
     } catch (err: unknown) {
       const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
@@ -132,7 +127,7 @@ export default function SignUpScreen() {
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, signUp, firstName, lastName, setActive]);
+  }, [isLoaded, signUp, firstName, lastName, email, password, setActive]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -195,10 +190,10 @@ export default function SignUpScreen() {
           </>
         )}
 
-        {step === 'name' && (
-          <>
+        {step === 'profile' && (
+          <ScrollView style={styles.scrollInner} keyboardShouldPersistTaps="handled">
             <Text style={styles.subtitle}>
-              Almost there! What's your name?
+              Complete your profile
             </Text>
             <TextInput
               style={styles.input}
@@ -216,9 +211,28 @@ export default function SignUpScreen() {
               onChangeText={setLastName}
               autoCapitalize="words"
             />
+            <TextInput
+              style={styles.input}
+              placeholder="Email (optional)"
+              placeholderTextColor="#555"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Password (optional)"
+              placeholderTextColor="#555"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="new-password"
+            />
             <TouchableOpacity
               style={styles.button}
-              onPress={onSubmitName}
+              onPress={onSubmitProfile}
               disabled={loading || !firstName || !lastName}
             >
               {loading ? (
@@ -227,7 +241,7 @@ export default function SignUpScreen() {
                 <Text style={styles.buttonText}>Continue</Text>
               )}
             </TouchableOpacity>
-          </>
+          </ScrollView>
         )}
 
         <TouchableOpacity onPress={() => router.push('/(auth)/sign-in')}>
@@ -244,6 +258,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#0F0F10',
     padding: 24,
     justifyContent: 'center',
+  },
+  scrollInner: {
+    flexGrow: 0,
   },
   logo: {
     fontSize: 36,
