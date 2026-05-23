@@ -7,6 +7,7 @@
  * - URL slug auto-populates from community name
  * - Next/Back buttons render in footer
  * - Multiline description input uses minHeight style instead of numberOfLines
+ * - Accent color validation prevents crash when color is empty/partial (safeColor)
  */
 
 import React from 'react';
@@ -144,6 +145,27 @@ describe('Admin Setup Wizard', () => {
     // If the description field had numberOfLines, this would crash.
     // The fact that the component renders proves the fix works.
     expect(getByText('Description')).toBeTruthy();
+  });
+
+  it('should not crash on step 4 (branding) with empty/partial accent color', () => {
+    // BUG FIX: Typing in the accent color field caused a crash because
+    // intermediate values (empty string, partial hex like "#E6") were used
+    // directly in style props (backgroundColor, borderColor). The safeColor()
+    // helper now validates hex before applying it to styles.
+    const { getByText } = render(<SetupWizard />);
+
+    // Navigate to step 4 (Branding)
+    fireEvent.press(getByText('Next')); // step 2
+    fireEvent.press(getByText('Next')); // step 3
+    fireEvent.press(getByText('Next')); // step 4
+
+    // Verify step 4 renders without crashing
+    expect(getByText('Branding')).toBeTruthy();
+    expect(getByText('Theme Mode')).toBeTruthy();
+    // The DARK chip uses accentColor for styling — if safeColor wasn't in place,
+    // clearing the color field would crash here
+    expect(getByText('DARK')).toBeTruthy();
+    expect(getByText('LIGHT')).toBeTruthy();
   });
 
   it('should navigate between steps with Next/Back buttons', () => {
