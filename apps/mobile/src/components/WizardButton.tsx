@@ -62,11 +62,11 @@ const styles = StyleSheet.create({
   secondary: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#2A2A2E',
+    borderColor: '#E5E5EA',
   },
   ghost: { backgroundColor: 'transparent' },
   disabled: { opacity: 0.4 },
   text: { fontSize: 16, fontWeight: '600' },
   primaryText: { color: '#FFFFFF' },
-  ghostText: { color: '#888892' },
+  ghostText: { color: '#6B6B73' },
 });

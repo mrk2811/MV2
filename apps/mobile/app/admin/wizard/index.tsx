@@ -18,6 +18,11 @@ import { api } from '../../../src/api/client';
 
 const TOTAL_STEPS = 10;
 
+const HEX_RE = /^#([0-9A-Fa-f]{3}){1,2}$/;
+function safeColor(color: string, fallback = '#E63946'): string {
+  return HEX_RE.test(color) ? color : fallback;
+}
+
 const LAYOUT_OPTIONS = [
   { key: 'PROMPT_FIRST_FEED', label: 'Prompt-First Feed', desc: 'Content-rich profiles with card-swipe navigation' },
   { key: 'CURATED_MATCH_QUEUE', label: 'Curated Match Queue', desc: 'Recommendation-driven guided matchmaking' },
@@ -370,17 +375,17 @@ export default function SetupWizard() {
                   key={mode}
                   style={[
                     styles.optionChip,
-                    data.themeMode === mode && {
-                      borderColor: data.accentColor,
-                      backgroundColor: data.accentColor + '20',
-                    },
+                        data.themeMode === mode && {
+                          borderColor: safeColor(data.accentColor),
+                          backgroundColor: safeColor(data.accentColor) + '20',
+                        },
                   ]}
                   onPress={() => updateField('themeMode', mode)}
                 >
                   <Text
                     style={[
                       styles.optionChipText,
-                      data.themeMode === mode && { color: data.accentColor },
+                      data.themeMode === mode && { color: safeColor(data.accentColor) },
                     ]}
                   >
                     {mode}
@@ -405,8 +410,8 @@ export default function SetupWizard() {
                 style={[
                   styles.layoutCard,
                   data.layoutType === opt.key && {
-                    borderColor: data.accentColor,
-                    backgroundColor: data.accentColor + '10',
+                    borderColor: safeColor(data.accentColor),
+                    backgroundColor: safeColor(data.accentColor) + '10',
                   },
                 ]}
                 onPress={() => updateField('layoutType', opt.key)}
@@ -414,7 +419,7 @@ export default function SetupWizard() {
                 <Text
                   style={[
                     styles.layoutTitle,
-                    data.layoutType === opt.key && { color: data.accentColor },
+                    data.layoutType === opt.key && { color: safeColor(data.accentColor) },
                   ]}
                 >
                   {opt.label}
@@ -458,7 +463,7 @@ export default function SetupWizard() {
               style={styles.addBtn}
               onPress={() => addListItem('gatekeeperQuestions')}
             >
-              <Text style={[styles.addBtnText, { color: data.accentColor }]}>
+              <Text style={[styles.addBtnText, { color: safeColor(data.accentColor) }]}>
                 + Add Question
               </Text>
             </TouchableOpacity>
@@ -499,7 +504,7 @@ export default function SetupWizard() {
               style={styles.addBtn}
               onPress={() => addListItem('communityRules')}
             >
-              <Text style={[styles.addBtnText, { color: data.accentColor }]}>
+              <Text style={[styles.addBtnText, { color: safeColor(data.accentColor) }]}>
                 + Add Rule
               </Text>
             </TouchableOpacity>
@@ -519,8 +524,8 @@ export default function SetupWizard() {
                 style={[
                   styles.layoutCard,
                   data.pricingType === opt.key && {
-                    borderColor: data.accentColor,
-                    backgroundColor: data.accentColor + '10',
+                    borderColor: safeColor(data.accentColor),
+                    backgroundColor: safeColor(data.accentColor) + '10',
                   },
                 ]}
                 onPress={() => updateField('pricingType', opt.key)}
@@ -528,7 +533,7 @@ export default function SetupWizard() {
                 <Text
                   style={[
                     styles.layoutTitle,
-                    data.pricingType === opt.key && { color: data.accentColor },
+                    data.pricingType === opt.key && { color: safeColor(data.accentColor) },
                   ]}
                 >
                   {opt.label}
@@ -560,7 +565,7 @@ export default function SetupWizard() {
                 style={[
                   styles.toggle,
                   data.acceptsPassport && {
-                    backgroundColor: data.accentColor,
+                    backgroundColor: safeColor(data.accentColor),
                   },
                 ]}
                 onPress={() =>
@@ -621,7 +626,7 @@ export default function SetupWizard() {
               style={styles.addBtn}
               onPress={() => addListItem('customTags')}
             >
-              <Text style={[styles.addBtnText, { color: data.accentColor }]}>
+              <Text style={[styles.addBtnText, { color: safeColor(data.accentColor) }]}>
                 + Add Tag
               </Text>
             </TouchableOpacity>
@@ -631,7 +636,7 @@ export default function SetupWizard() {
                 style={[
                   styles.toggle,
                   data.matchmakerEnabled && {
-                    backgroundColor: data.accentColor,
+                    backgroundColor: safeColor(data.accentColor),
                   },
                 ]}
                 onPress={() =>
@@ -697,11 +702,11 @@ export default function SetupWizard() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <StepIndicator
         currentStep={step}
         totalSteps={TOTAL_STEPS}
-        accentColor={data.accentColor}
+        accentColor={safeColor(data.accentColor)}
       />
       <ScrollView
         style={styles.content}
@@ -722,13 +727,13 @@ export default function SetupWizard() {
         {step < TOTAL_STEPS ? (
           <WizardButton
             title="Next"
-            accentColor={data.accentColor}
+            accentColor={safeColor(data.accentColor)}
             onPress={nextStep}
           />
         ) : (
           <WizardButton
             title="Launch Community"
-            accentColor={data.accentColor}
+            accentColor={safeColor(data.accentColor)}
             onPress={handleFinalize}
             loading={loading}
           />
@@ -748,29 +753,29 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F10' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { flex: 1 },
   contentInner: { padding: 24, paddingBottom: 40 },
   stepTitle: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     marginBottom: 8,
   },
-  stepDesc: { color: '#888892', fontSize: 15, marginBottom: 24, lineHeight: 22 },
+  stepDesc: { color: '#6B6B73', fontSize: 15, marginBottom: 24, lineHeight: 22 },
   fieldLabel: {
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     fontSize: 15,
     fontWeight: '600',
     marginBottom: 4,
   },
-  hint: { color: '#888892', fontSize: 13, marginBottom: 8 },
+  hint: { color: '#6B6B73', fontSize: 13, marginBottom: 8 },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#1A1A1D',
+    borderTopColor: '#E5E5EA',
   },
   spacer: { flex: 1 },
   optionRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
@@ -779,18 +784,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2A2A2E',
+    borderColor: '#E5E5EA',
   },
-  optionChipText: { color: '#888892', fontSize: 14, fontWeight: '500' },
+  optionChipText: { color: '#6B6B73', fontSize: 14, fontWeight: '500' },
   layoutCard: {
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2E',
+    borderColor: '#E5E5EA',
     marginBottom: 12,
   },
-  layoutTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
-  layoutDesc: { color: '#888892', fontSize: 13, marginTop: 4 },
+  layoutTitle: { color: '#1C1C1E', fontSize: 16, fontWeight: '600' },
+  layoutDesc: { color: '#6B6B73', fontSize: 13, marginTop: 4 },
   listRow: { flexDirection: 'row', alignItems: 'flex-start' },
   listInputWrap: { flex: 1 },
   removeBtn: {
@@ -799,7 +804,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#2A2A2E',
+    backgroundColor: '#F5F5F7',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -813,16 +818,16 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 12,
   },
-  toggleLabel: { color: '#FFFFFF', fontSize: 15 },
+  toggleLabel: { color: '#1C1C1E', fontSize: 15 },
   toggle: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#2A2A2E',
+    backgroundColor: '#F5F5F7',
   },
-  toggleText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
+  toggleText: { color: '#1C1C1E', fontSize: 13, fontWeight: '600' },
   reviewSection: {
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#F5F5F7',
     borderRadius: 12,
     padding: 16,
   },
@@ -831,8 +836,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#2A2A2E',
+    borderBottomColor: '#E5E5EA',
   },
-  reviewLabel: { color: '#888892', fontSize: 14 },
-  reviewValue: { color: '#FFFFFF', fontSize: 14, fontWeight: '500', maxWidth: '60%', textAlign: 'right' },
+  reviewLabel: { color: '#6B6B73', fontSize: 14 },
+  reviewValue: { color: '#1C1C1E', fontSize: 14, fontWeight: '500', maxWidth: '60%', textAlign: 'right' },
 });

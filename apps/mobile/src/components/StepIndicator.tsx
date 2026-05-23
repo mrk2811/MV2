@@ -33,10 +33,10 @@ export function StepIndicator({
 
 const styles = StyleSheet.create({
   container: { paddingHorizontal: 24, paddingTop: 16 },
-  label: { color: '#888892', fontSize: 13, marginBottom: 8 },
+  label: { color: '#6B6B73', fontSize: 13, marginBottom: 8 },
   track: {
     height: 4,
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#E5E5EA',
     borderRadius: 2,
     overflow: 'hidden',
   },

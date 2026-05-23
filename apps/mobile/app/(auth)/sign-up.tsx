@@ -135,7 +135,7 @@ export default function SignUpScreen() {
             <TextInput
               style={styles.input}
               placeholder="Phone number (+1...)"
-              placeholderTextColor="#555"
+              placeholderTextColor="#8E8E93"
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
@@ -163,7 +163,7 @@ export default function SignUpScreen() {
             <TextInput
               style={styles.input}
               placeholder="Verification code"
-              placeholderTextColor="#555"
+              placeholderTextColor="#8E8E93"
               value={code}
               onChangeText={setCode}
               keyboardType="number-pad"
@@ -190,7 +190,7 @@ export default function SignUpScreen() {
             <TextInput
               style={styles.input}
               placeholder="First name"
-              placeholderTextColor="#555"
+              placeholderTextColor="#8E8E93"
               value={firstName}
               onChangeText={setFirstName}
               autoCapitalize="words"
@@ -198,7 +198,7 @@ export default function SignUpScreen() {
             <TextInput
               style={styles.input}
               placeholder="Last name"
-              placeholderTextColor="#555"
+              placeholderTextColor="#8E8E93"
               value={lastName}
               onChangeText={setLastName}
               autoCapitalize="words"
@@ -206,7 +206,7 @@ export default function SignUpScreen() {
             <TextInput
               style={styles.input}
               placeholder="Email (optional)"
-              placeholderTextColor="#555"
+              placeholderTextColor="#8E8E93"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -216,7 +216,7 @@ export default function SignUpScreen() {
             <TextInput
               style={styles.input}
               placeholder="Password (optional)"
-              placeholderTextColor="#555"
+              placeholderTextColor="#8E8E93"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -247,7 +247,7 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     padding: 24,
     justifyContent: 'center',
   },
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 36,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     letterSpacing: 4,
     textAlign: 'center',
     marginBottom: 8,
@@ -265,25 +265,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     textAlign: 'center',
     marginBottom: 32,
   },
   subtitle: {
     fontSize: 14,
-    color: '#888892',
+    color: '#6B6B73',
     textAlign: 'center',
     marginBottom: 16,
   },
   input: {
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#F5F5F7',
     borderRadius: 12,
     padding: 16,
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     fontSize: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2D',
+    borderColor: '#E5E5EA',
   },
   button: {
     backgroundColor: '#E63946',

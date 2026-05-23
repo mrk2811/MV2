@@ -95,7 +95,7 @@ export default function DoorbellScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
@@ -147,34 +147,34 @@ export default function DoorbellScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F10' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   centered: {
     flex: 1,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   content: { padding: 24, paddingTop: 60, paddingBottom: 120 },
-  title: { fontSize: 26, fontWeight: '700', color: '#FFFFFF', marginBottom: 8 },
-  subtitle: { fontSize: 15, color: '#888892', marginBottom: 28, lineHeight: 22 },
+  title: { fontSize: 26, fontWeight: '700', color: '#1C1C1E', marginBottom: 8 },
+  subtitle: { fontSize: 15, color: '#6B6B73', marginBottom: 28, lineHeight: 22 },
   noQuestions: {
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#F5F5F7',
     padding: 20,
     borderRadius: 12,
     alignItems: 'center',
   },
-  noQuestionsText: { color: '#AAAAAA', fontSize: 15 },
+  noQuestionsText: { color: '#8E8E93', fontSize: 15 },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#1A1A1D',
+    borderTopColor: '#E5E5EA',
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
   },
   spacer: { flex: 1 },
 });

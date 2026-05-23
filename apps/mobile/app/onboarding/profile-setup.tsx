@@ -75,7 +75,7 @@ export default function ProfileSetup() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
@@ -163,12 +163,12 @@ export default function ProfileSetup() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F10' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 24, paddingTop: 60, paddingBottom: 120 },
-  title: { fontSize: 26, fontWeight: '700', color: '#FFFFFF', marginBottom: 8 },
+  title: { fontSize: 26, fontWeight: '700', color: '#1C1C1E', marginBottom: 8 },
   subtitle: {
     fontSize: 15,
-    color: '#888892',
+    color: '#6B6B73',
     marginBottom: 28,
     lineHeight: 22,
   },
@@ -176,12 +176,12 @@ const styles = StyleSheet.create({
   promptTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     marginBottom: 4,
   },
-  promptHint: { color: '#888892', fontSize: 13, marginBottom: 16 },
+  promptHint: { color: '#6B6B73', fontSize: 13, marginBottom: 16 },
   promptCard: {
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#F5F5F7',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -192,8 +192,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#1A1A1D',
+    borderTopColor: '#E5E5EA',
   },
 });

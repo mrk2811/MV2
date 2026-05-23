@@ -13,7 +13,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
 
       <View style={styles.userRow}>
         <Text style={styles.greeting}>Hey, {displayName}</Text>
@@ -47,7 +47,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   greeting: {
-    color: '#888892',
+    color: '#6B6B73',
     fontSize: 14,
   },
   signOutBtn: {
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2A2A2D',
+    borderColor: '#E5E5EA',
   },
   signOutText: {
     color: '#E63946',
@@ -83,12 +83,12 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 48,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     letterSpacing: 4,
   },
   tagline: {
     fontSize: 16,
-    color: '#888892',
+    color: '#6B6B73',
     marginTop: 12,
   },
   actions: {
