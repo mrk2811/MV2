@@ -11,16 +11,21 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { useSignUp } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
+
+type SignUpStep = 'phone' | 'verify' | 'name';
 
 export default function SignUpScreen() {
   const { signUp, setActive, isLoaded } = useSignUp();
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
-  const [pendingVerification, setPendingVerification] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [step, setStep] = useState<SignUpStep>('phone');
   const [loading, setLoading] = useState(false);
 
   const onSendCode = useCallback(async () => {
@@ -29,7 +34,7 @@ export default function SignUpScreen() {
     try {
       await signUp.create({ phoneNumber: phone });
       await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
-      setPendingVerification(true);
+      setStep('verify');
     } catch (err: unknown) {
       const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
       const firstErr = clerkErr.errors?.[0];
@@ -47,6 +52,13 @@ export default function SignUpScreen() {
     }
   }, [isLoaded, phone, signUp]);
 
+  const activateSession = useCallback(async () => {
+    const sessionId = signUp?.createdSessionId;
+    if (sessionId && setActive) {
+      await setActive({ session: sessionId });
+    }
+  }, [signUp, setActive]);
+
   const onVerifyCode = useCallback(async () => {
     if (!isLoaded) return;
     setLoading(true);
@@ -56,6 +68,14 @@ export default function SignUpScreen() {
 
       if (result.status === 'complete' && sessionId) {
         await setActive({ session: sessionId });
+      } else if (result.status === 'missing_requirements') {
+        const missing = (result as unknown as { missingFields?: string[] }).missingFields ?? [];
+        const needsName = missing.includes('first_name') || missing.includes('last_name');
+        if (needsName) {
+          setStep('name');
+        } else {
+          await activateSession();
+        }
       } else if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId as string });
       } else {
@@ -74,7 +94,35 @@ export default function SignUpScreen() {
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, code, signUp, setActive]);
+  }, [isLoaded, code, signUp, setActive, activateSession]);
+
+  const onSubmitName = useCallback(async () => {
+    if (!isLoaded || !signUp) return;
+    setLoading(true);
+    try {
+      const result = await signUp.update({ firstName, lastName });
+      const sessionId = result.createdSessionId ?? signUp.createdSessionId;
+      if (result.status === 'complete' && sessionId) {
+        await setActive({ session: sessionId });
+      } else if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId as string });
+      } else {
+        Alert.alert('Error', 'Sign-up could not be completed. Please try again.');
+      }
+    } catch (err: unknown) {
+      const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
+      const firstErr = clerkErr.errors?.[0];
+      let message = 'Failed to complete sign-up';
+      if (firstErr?.longMessage || firstErr?.message) {
+        message = firstErr.longMessage || firstErr.message || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
+    }
+  }, [isLoaded, signUp, firstName, lastName, setActive]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -85,7 +133,7 @@ export default function SignUpScreen() {
         <Text style={styles.logo}>MV2</Text>
         <Text style={styles.title}>Create Account</Text>
 
-        {!pendingVerification ? (
+        {step === 'phone' && (
           <>
             <TextInput
               style={styles.input}
@@ -108,7 +156,9 @@ export default function SignUpScreen() {
               )}
             </TouchableOpacity>
           </>
-        ) : (
+        )}
+
+        {step === 'verify' && (
           <>
             <Text style={styles.subtitle}>
               Enter the code sent to {phone}
@@ -130,6 +180,41 @@ export default function SignUpScreen() {
                 <ActivityIndicator color="#FFF" />
               ) : (
                 <Text style={styles.buttonText}>Verify</Text>
+              )}
+            </TouchableOpacity>
+          </>
+        )}
+
+        {step === 'name' && (
+          <>
+            <Text style={styles.subtitle}>
+              Almost there! What's your name?
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="First name"
+              placeholderTextColor="#555"
+              value={firstName}
+              onChangeText={setFirstName}
+              autoCapitalize="words"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Last name"
+              placeholderTextColor="#555"
+              value={lastName}
+              onChangeText={setLastName}
+              autoCapitalize="words"
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={onSubmitName}
+              disabled={loading || !firstName || !lastName}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.buttonText}>Continue</Text>
               )}
             </TouchableOpacity>
           </>
