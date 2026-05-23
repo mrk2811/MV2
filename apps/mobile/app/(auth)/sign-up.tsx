@@ -4,6 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   ActivityIndicator,
   Alert,
@@ -27,8 +31,16 @@ export default function SignUpScreen() {
       await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
       setPendingVerification(true);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to send code';
+      const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
+      const firstErr = clerkErr.errors?.[0];
+      let message = 'Failed to send code';
+      if (firstErr?.code === 'form_param_unknown') {
+        message = 'Phone number sign-up is not enabled. Please enable it in the Clerk dashboard under User & Authentication > Phone Number.';
+      } else if (firstErr?.longMessage || firstErr?.message) {
+        message = firstErr.longMessage || firstErr.message || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
@@ -55,64 +67,69 @@ export default function SignUpScreen() {
   }, [isLoaded, code, signUp, setActive, router]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.logo}>MV2</Text>
-      <Text style={styles.title}>Create Account</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <Text style={styles.logo}>MV2</Text>
+        <Text style={styles.title}>Create Account</Text>
 
-      {!pendingVerification ? (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Phone number (+1...)"
-            placeholderTextColor="#555"
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-          />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={onSendCode}
-            disabled={loading || !phone}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.buttonText}>Send Code</Text>
-            )}
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          <Text style={styles.subtitle}>
-            Enter the code sent to {phone}
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Verification code"
-            placeholderTextColor="#555"
-            value={code}
-            onChangeText={setCode}
-            keyboardType="number-pad"
-          />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={onVerifyCode}
-            disabled={loading || !code}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.buttonText}>Verify</Text>
-            )}
-          </TouchableOpacity>
-        </>
-      )}
+        {!pendingVerification ? (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Phone number (+1...)"
+              placeholderTextColor="#555"
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+              autoComplete="tel"
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={onSendCode}
+              disabled={loading || !phone}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.buttonText}>Send Code</Text>
+              )}
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={styles.subtitle}>
+              Enter the code sent to {phone}
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Verification code"
+              placeholderTextColor="#555"
+              value={code}
+              onChangeText={setCode}
+              keyboardType="number-pad"
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={onVerifyCode}
+              disabled={loading || !code}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.buttonText}>Verify</Text>
+              )}
+            </TouchableOpacity>
+          </>
+        )}
 
-      <TouchableOpacity onPress={() => router.push('/(auth)/sign-in')}>
-        <Text style={styles.link}>Already have an account? Sign in</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={() => router.push('/(auth)/sign-in')}>
+          <Text style={styles.link}>Already have an account? Sign in</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
