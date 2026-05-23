@@ -40,259 +40,73 @@ const LAYOUT_OPTIONS = [
   { key: 'GRID_SINGLES_ROSTER', label: 'Grid Singles Roster', desc: 'Photo grid directory of members' },
 ];
 
-function LayoutMockup({ type, accent }: { type: string; accent: string }) {
-  if (type === 'PROMPT_FIRST_FEED') {
-    return (
-      <View style={mck.phone}>
-        <View style={[mck.statusBar, { backgroundColor: accent }]}>
-          <Text style={mck.statusBarText}>Discover</Text>
-        </View>
-        <View style={mck.body}>
-          <View style={[mck.swipeCard, { borderColor: accent }]}>
-            <View style={[mck.swipePhoto, { backgroundColor: accent }]}>
-              <Text style={mck.swipeInitial}>A</Text>
-            </View>
-            <View style={mck.swipeInfo}>
-              <Text style={mck.swipeName}>Alex, 28</Text>
-              <Text style={mck.swipeBio}>Loves hiking and coffee...</Text>
-            </View>
-          </View>
-          <View style={mck.swipeBtns}>
-            <View style={mck.swipeBtnX}>
-              <Text style={mck.swipeBtnXText}>✕</Text>
-            </View>
-            <View style={[mck.swipeBtnHeart, { backgroundColor: accent }]}>
-              <Text style={mck.swipeBtnHeartText}>♥</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }
-  if (type === 'CURATED_MATCH_QUEUE') {
-    return (
-      <View style={mck.phone}>
-        <View style={[mck.statusBar, { backgroundColor: accent }]}>
-          <Text style={mck.statusBarText}>Matches</Text>
-        </View>
-        <View style={mck.body}>
-          <Text style={mck.matchHeader}>{"Today's Match"}</Text>
-          <View style={[mck.matchPhoto, { backgroundColor: accent }]}>
-            <Text style={mck.matchInitial}>S</Text>
-          </View>
-          <Text style={mck.matchName}>Sam, 26</Text>
-          <Text style={mck.matchCompat}>92% Compatible</Text>
-          <View style={[mck.matchConnectBtn, { backgroundColor: accent }]}>
-            <Text style={mck.matchConnectText}>Connect</Text>
-          </View>
-          <View style={mck.matchDivider} />
-          <Text style={mck.matchQueueLabel}>Up Next</Text>
-          <View style={mck.matchQueueRow}>
-            <View style={mck.matchQueueThumb} />
-            <View style={mck.matchQueueThumb} />
-            <View style={mck.matchQueueThumb} />
-          </View>
-        </View>
-      </View>
-    );
-  }
-  if (type === 'DISCORD_CHANNEL_MATRIX') {
-    return (
-      <View style={mck.phone}>
-        <View style={[mck.statusBar, { backgroundColor: accent }]}>
-          <Text style={mck.statusBarText}>Channels</Text>
-        </View>
-        <View style={mck.body}>
-          <Text style={mck.chSectionLabel}>TOPICS</Text>
-          <View style={[mck.chRow, { borderLeftColor: accent }]}>
-            <Text style={mck.chName}># general</Text>
-            <Text style={mck.chPreview}>3 new</Text>
-          </View>
-          <View style={[mck.chRow, { borderLeftColor: accent }]}>
-            <Text style={mck.chName}># introductions</Text>
-            <Text style={mck.chPreview} />
-          </View>
-          <View style={[mck.chRow, { borderLeftColor: accent }]}>
-            <Text style={mck.chName}># events</Text>
-            <Text style={mck.chPreview} />
-          </View>
-          <View style={[mck.chRow, { borderLeftColor: accent }]}>
-            <Text style={mck.chName}># photos</Text>
-            <Text style={mck.chPreview} />
-          </View>
-          <Text style={mck.chSectionLabel}>VOICE</Text>
-          <View style={[mck.chRow, { borderLeftColor: accent }]}>
-            <Text style={mck.chName}>lounge</Text>
-            <Text style={mck.chPreview}>2 live</Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
-  if (type === 'WHATSAPP_DIRECT_LIST') {
-    return (
-      <View style={mck.phone}>
-        <View style={[mck.statusBar, { backgroundColor: accent }]}>
-          <Text style={mck.statusBarText}>Chats</Text>
-        </View>
-        <View style={mck.body}>
-          <View style={mck.dmRow}>
-            <View style={[mck.dmAvatar, { backgroundColor: accent }]}>
-              <Text style={mck.dmAvatarText}>J</Text>
-            </View>
-            <View style={mck.dmInfo}>
-              <View style={mck.dmTopRow}>
-                <Text style={mck.dmName}>Jordan</Text>
-                <Text style={mck.dmTime}>2m</Text>
-              </View>
-              <Text style={mck.dmMsg}>Hey, are you coming to...</Text>
-            </View>
-          </View>
-          <View style={mck.dmRow}>
-            <View style={[mck.dmAvatar, { backgroundColor: accent }]}>
-              <Text style={mck.dmAvatarText}>M</Text>
-            </View>
-            <View style={mck.dmInfo}>
-              <View style={mck.dmTopRow}>
-                <Text style={mck.dmName}>Maya</Text>
-                <Text style={mck.dmTime}>15m</Text>
-              </View>
-              <Text style={mck.dmMsg}>That sounds great!</Text>
-            </View>
-          </View>
-          <View style={mck.dmRow}>
-            <View style={[mck.dmAvatar, mck.dmAvatarMuted]}>
-              <Text style={mck.dmAvatarText}>R</Text>
-            </View>
-            <View style={mck.dmInfo}>
-              <View style={mck.dmTopRow}>
-                <Text style={mck.dmName}>Riley</Text>
-                <Text style={mck.dmTime}>1h</Text>
-              </View>
-              <Text style={mck.dmMsg}>See you there</Text>
-            </View>
-          </View>
-          <View style={mck.dmRow}>
-            <View style={[mck.dmAvatar, mck.dmAvatarMuted]}>
-              <Text style={mck.dmAvatarText}>T</Text>
-            </View>
-            <View style={mck.dmInfo}>
-              <View style={mck.dmTopRow}>
-                <Text style={mck.dmName}>Taylor</Text>
-                <Text style={mck.dmTime}>3h</Text>
-              </View>
-              <Text style={mck.dmMsg}>Sent a photo</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }
-  if (type === 'GRID_SINGLES_ROSTER') {
-    return (
-      <View style={mck.phone}>
-        <View style={[mck.statusBar, { backgroundColor: accent }]}>
-          <Text style={mck.statusBarText}>Members</Text>
-        </View>
-        <View style={mck.body}>
-          <View style={mck.gridRow}>
-            <View style={mck.gridCard}>
-              <View style={[mck.gridPhoto, { backgroundColor: accent }]}>
-                <Text style={mck.gridInitial}>A</Text>
-              </View>
-              <Text style={mck.gridLabel}>Alex</Text>
-            </View>
-            <View style={mck.gridCard}>
-              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
-                <Text style={mck.gridInitial}>B</Text>
-              </View>
-              <Text style={mck.gridLabel}>Blake</Text>
-            </View>
-            <View style={mck.gridCard}>
-              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
-                <Text style={mck.gridInitial}>C</Text>
-              </View>
-              <Text style={mck.gridLabel}>Casey</Text>
-            </View>
-          </View>
-          <View style={mck.gridRow}>
-            <View style={mck.gridCard}>
-              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
-                <Text style={mck.gridInitial}>D</Text>
-              </View>
-              <Text style={mck.gridLabel}>Dana</Text>
-            </View>
-            <View style={mck.gridCard}>
-              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
-                <Text style={mck.gridInitial}>E</Text>
-              </View>
-              <Text style={mck.gridLabel}>Ellis</Text>
-            </View>
-            <View style={mck.gridCard}>
-              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
-                <Text style={mck.gridInitial}>F</Text>
-              </View>
-              <Text style={mck.gridLabel}>Fran</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }
-  return null;
+const MOCKUP_DATA: Record<string, { icon: string; title: string; line1: string; line2: string; line3: string; ref: string }> = {
+  PROMPT_FIRST_FEED: {
+    icon: '👆',
+    title: 'Swipe Cards',
+    line1: 'Members see one profile at a time',
+    line2: 'Pass or like with swipe gestures',
+    line3: 'Bio, photo, and prompts on each card',
+    ref: 'Similar to Hinge / Tinder',
+  },
+  CURATED_MATCH_QUEUE: {
+    icon: '💘',
+    title: 'Daily Matches',
+    line1: 'Algorithm picks one match per day',
+    line2: 'Shows compatibility score & shared interests',
+    line3: 'Tap "Connect" to start a conversation',
+    ref: 'Similar to Coffee Meets Bagel',
+  },
+  DISCORD_CHANNEL_MATRIX: {
+    icon: '💬',
+    title: 'Topic Channels',
+    line1: '# general, # intros, # events, # photos',
+    line2: 'Members post in organized channels',
+    line3: 'Voice rooms for live group chats',
+    ref: 'Similar to Discord / Slack',
+  },
+  WHATSAPP_DIRECT_LIST: {
+    icon: '📱',
+    title: 'Direct Messages',
+    line1: 'Chat list with recent conversations',
+    line2: 'See name, last message & timestamp',
+    line3: 'Unread badges on new messages',
+    ref: 'Similar to WhatsApp / iMessage',
+  },
+  GRID_SINGLES_ROSTER: {
+    icon: '👥',
+    title: 'Member Grid',
+    line1: 'Photo grid of all community members',
+    line2: 'Tap any profile to view details',
+    line3: 'Filter & search by tags or location',
+    ref: 'Similar to Instagram / Meetup',
+  },
+};
+
+function LayoutMockup({ type }: { type: string }) {
+  const d = MOCKUP_DATA[type];
+  if (!d) return null;
+  return (
+    <View style={mck.card}>
+      <Text style={mck.icon}>{d.icon}</Text>
+      <Text style={mck.title}>{d.title}</Text>
+      <View style={mck.divider} />
+      <Text style={mck.line}>{d.line1}</Text>
+      <Text style={mck.line}>{d.line2}</Text>
+      <Text style={mck.line}>{d.line3}</Text>
+      <View style={mck.divider} />
+      <Text style={mck.ref}>{d.ref}</Text>
+    </View>
+  );
 }
 
 const mck = StyleSheet.create({
-  phone: { width: 180, height: 280, borderRadius: 16, borderWidth: 2, borderColor: '#E5E5EA', backgroundColor: '#FFFFFF', alignSelf: 'center' },
-  statusBar: { height: 28, borderTopLeftRadius: 14, borderTopRightRadius: 14, justifyContent: 'center', alignItems: 'center' },
-  statusBarText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
-  body: { paddingHorizontal: 10, paddingTop: 8 },
-  /* Swipe / Prompt-First */
-  swipeCard: { borderWidth: 1, borderRadius: 10, alignItems: 'center', paddingBottom: 6 },
-  swipePhoto: { width: 140, height: 90, borderTopLeftRadius: 9, borderTopRightRadius: 9, justifyContent: 'center', alignItems: 'center' },
-  swipeInitial: { color: '#FFF', fontSize: 28, fontWeight: '800' },
-  swipeInfo: { alignItems: 'center', paddingTop: 4 },
-  swipeName: { fontSize: 12, fontWeight: '700', color: '#1C1C1E' },
-  swipeBio: { fontSize: 8, color: '#8E8E93', marginTop: 1 },
-  swipeBtns: { flexDirection: 'row', justifyContent: 'center', marginTop: 10 },
-  swipeBtnX: { width: 32, height: 32, borderRadius: 16, borderWidth: 2, borderColor: '#E5E5EA', justifyContent: 'center', alignItems: 'center' },
-  swipeBtnXText: { fontSize: 14, color: '#8E8E93', fontWeight: '700' },
-  swipeBtnHeart: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginLeft: 16 },
-  swipeBtnHeartText: { fontSize: 14, color: '#FFF' },
-  /* Match Queue */
-  matchHeader: { fontSize: 10, fontWeight: '600', color: '#8E8E93', textAlign: 'center', marginBottom: 6 },
-  matchPhoto: { width: 60, height: 60, borderRadius: 30, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' },
-  matchInitial: { color: '#FFF', fontSize: 22, fontWeight: '800' },
-  matchName: { fontSize: 12, fontWeight: '700', color: '#1C1C1E', textAlign: 'center', marginTop: 4 },
-  matchCompat: { fontSize: 8, color: '#8E8E93', textAlign: 'center', marginTop: 1 },
-  matchConnectBtn: { alignSelf: 'center', paddingHorizontal: 20, paddingVertical: 5, borderRadius: 10, marginTop: 6 },
-  matchConnectText: { color: '#FFF', fontSize: 10, fontWeight: '700' },
-  matchDivider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 8 },
-  matchQueueLabel: { fontSize: 9, fontWeight: '600', color: '#8E8E93', marginBottom: 4 },
-  matchQueueRow: { flexDirection: 'row' },
-  matchQueueThumb: { width: 32, height: 32, borderRadius: 8, backgroundColor: '#E5E5EA', marginRight: 6 },
-  /* Discord Channels */
-  chSectionLabel: { fontSize: 8, fontWeight: '700', color: '#8E8E93', letterSpacing: 0.8, marginBottom: 4, marginTop: 4 },
-  chRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 8, borderLeftWidth: 3, marginBottom: 3, backgroundColor: '#F5F5F7', borderRadius: 4 },
-  chName: { fontSize: 10, color: '#1C1C1E', fontWeight: '600' },
-  chPreview: { fontSize: 8, color: '#8E8E93' },
-  /* WhatsApp DM List */
-  dmRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  dmAvatar: { width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
-  dmAvatarMuted: { backgroundColor: '#D1D1D6' },
-  dmAvatarText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
-  dmInfo: { marginLeft: 8, width: 100 },
-  dmTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  dmName: { fontSize: 10, fontWeight: '700', color: '#1C1C1E' },
-  dmTime: { fontSize: 7, color: '#8E8E93' },
-  dmMsg: { fontSize: 8, color: '#8E8E93', marginTop: 1 },
-  /* Grid Roster */
-  gridRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  gridCard: { alignItems: 'center', width: 48 },
-  gridPhoto: { width: 44, height: 44, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  gridPhotoMuted: { backgroundColor: '#D1D1D6' },
-  gridInitial: { color: '#FFF', fontSize: 18, fontWeight: '800' },
-  gridLabel: { fontSize: 8, color: '#1C1C1E', fontWeight: '600', marginTop: 2 },
+  card: { width: 200, alignSelf: 'center', backgroundColor: '#F5F5F7', borderRadius: 16, paddingVertical: 20, paddingHorizontal: 18, borderWidth: 1, borderColor: '#E5E5EA' },
+  icon: { fontSize: 40, textAlign: 'center', marginBottom: 8 },
+  title: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', textAlign: 'center', marginBottom: 4 },
+  divider: { height: 1, backgroundColor: '#E5E5EA', marginVertical: 10 },
+  line: { fontSize: 12, color: '#3A3A3C', lineHeight: 18, marginBottom: 2 },
+  ref: { fontSize: 11, color: '#8E8E93', fontStyle: 'italic', textAlign: 'center' },
 });
 
 const PRICING_OPTIONS = [
@@ -622,7 +436,7 @@ export default function SetupWizard() {
         );
 
       case 4: {
-        const ac = safeColor(data.accentColor);
+        const isDark = data.themeMode === 'DARK';
         return (
           <View>
             <Text style={styles.stepTitle}>Branding</Text>
@@ -666,7 +480,7 @@ export default function SetupWizard() {
             ) : null}
 
             {/* Color Palette */}
-            <Text style={[styles.fieldLabel, { marginTop: 24 }]}>Accent Color</Text>
+            <Text style={styles.fieldLabelSpaced}>Accent Color</Text>
             <Text style={styles.hint}>Pick a color for your community brand</Text>
             <View style={styles.colorGrid}>
               {COLOR_PALETTE.map((color) => (
@@ -675,8 +489,7 @@ export default function SetupWizard() {
                   testID={`color-swatch-${color}`}
                   style={[
                     styles.colorSwatch,
-                    { backgroundColor: color },
-                    data.accentColor === color && styles.colorSwatchActive,
+                    data.accentColor === color ? styles.colorSwatchActive : styles.colorSwatchInactive,
                   ]}
                   onPress={() => updateField('accentColor', color)}
                 >
@@ -687,66 +500,42 @@ export default function SetupWizard() {
               ))}
             </View>
 
-            {/* Theme Mode with Live Preview */}
-            <Text style={[styles.fieldLabel, { marginTop: 24 }]}>Theme Mode</Text>
-            <Text style={styles.hint}>Pick a theme — see a live preview below</Text>
+            {/* Theme Mode */}
+            <Text style={styles.fieldLabelSpaced}>Theme Mode</Text>
+            <Text style={styles.hint}>Choose light or dark mode for your community</Text>
             <View style={styles.optionRow}>
-              {(['DARK', 'LIGHT'] as const).map((mode) => (
-                <TouchableOpacity
-                  key={mode}
-                  style={[
-                    styles.optionChip,
-                    data.themeMode === mode && {
-                      borderColor: ac,
-                      backgroundColor: '#F5F5F7',
-                    },
-                  ]}
-                  onPress={() => updateField('themeMode', mode)}
-                >
-                  <Text
-                    style={[
-                      styles.optionChipText,
-                      data.themeMode === mode && { color: ac },
-                    ]}
-                  >
-                    {mode}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              <TouchableOpacity
+                style={data.themeMode === 'DARK' ? styles.optionChipActive : styles.optionChip}
+                onPress={() => updateField('themeMode', 'DARK')}
+              >
+                <Text style={data.themeMode === 'DARK' ? styles.optionChipTextActive : styles.optionChipText}>
+                  DARK
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={data.themeMode === 'LIGHT' ? styles.optionChipActive : styles.optionChip}
+                onPress={() => updateField('themeMode', 'LIGHT')}
+              >
+                <Text style={data.themeMode === 'LIGHT' ? styles.optionChipTextActive : styles.optionChipText}>
+                  LIGHT
+                </Text>
+              </TouchableOpacity>
             </View>
 
-            {/* Live Theme Preview */}
-            <View
-              style={[
-                styles.themePreview,
-                {
-                  backgroundColor: data.themeMode === 'DARK' ? '#1C1C1E' : '#FFFFFF',
-                  borderColor: data.themeMode === 'DARK' ? '#2C2C2E' : '#E5E5EA',
-                },
-              ]}
-            >
+            {/* Theme Preview - simplified, no dynamic inline styles */}
+            <View style={isDark ? styles.themePreviewDark : styles.themePreviewLight}>
               <View style={styles.themePreviewHeader}>
                 {data.logoUrl && data.logoUrl.length > 0 ? (
                   <Image source={{ uri: data.logoUrl }} style={styles.themePreviewLogo} />
                 ) : (
-                  <View style={[styles.themePreviewLogoPlaceholder, { backgroundColor: ac }]} />
+                  <View style={styles.themePreviewLogoFallback} />
                 )}
-                <Text
-                  style={[
-                    styles.themePreviewName,
-                    { color: data.themeMode === 'DARK' ? '#FFFFFF' : '#1C1C1E' },
-                  ]}
-                >
+                <Text style={isDark ? styles.themePreviewNameDark : styles.themePreviewNameLight}>
                   {data.name || 'Community Name'}
                 </Text>
               </View>
-              <View style={[styles.themePreviewBar, { backgroundColor: ac }]} />
-              <Text
-                style={[
-                  styles.themePreviewDesc,
-                  { color: data.themeMode === 'DARK' ? '#8E8E93' : '#6B6B73' },
-                ]}
-              >
+              <View style={styles.themePreviewBar} />
+              <Text style={isDark ? styles.themePreviewDescDark : styles.themePreviewDescLight}>
                 {data.description || 'Your community description will appear here'}
               </Text>
             </View>
@@ -755,7 +544,6 @@ export default function SetupWizard() {
       }
 
       case 5: {
-        const ac5 = safeColor(data.accentColor);
         const current = LAYOUT_OPTIONS[layoutIdx];
         const isSelected = current && data.layoutType === current.key;
         return (
@@ -766,17 +554,17 @@ export default function SetupWizard() {
             </Text>
 
             {current ? (
-              <View style={[styles.carouselCard, isSelected && { borderColor: ac5 }]}>
-                <LayoutMockup type={current.key} accent={ac5} />
-                <Text style={[styles.carouselTitle, isSelected && { color: ac5 }]}>
+              <View style={isSelected ? styles.carouselCardSelected : styles.carouselCard}>
+                <LayoutMockup type={current.key} />
+                <Text style={isSelected ? styles.carouselTitleSelected : styles.carouselTitle}>
                   {current.label}
                 </Text>
                 <Text style={styles.carouselDesc}>{current.desc}</Text>
                 <TouchableOpacity
-                  style={[styles.carouselSelectBtn, isSelected && { backgroundColor: ac5 }]}
+                  style={isSelected ? styles.carouselSelectBtnActive : styles.carouselSelectBtn}
                   onPress={() => updateField('layoutType', current.key)}
                 >
-                  <Text style={[styles.carouselSelectText, isSelected && { color: '#FFFFFF' }]}>
+                  <Text style={isSelected ? styles.carouselSelectTextActive : styles.carouselSelectText}>
                     {isSelected ? 'Selected' : 'Select'}
                   </Text>
                 </TouchableOpacity>
@@ -786,7 +574,7 @@ export default function SetupWizard() {
             {/* Navigation arrows */}
             <View style={styles.carouselNav}>
               <TouchableOpacity
-                style={[styles.carouselArrow, layoutIdx === 0 && { opacity: 0.3 }]}
+                style={layoutIdx === 0 ? styles.carouselArrowDisabled : styles.carouselArrow}
                 onPress={() => { if (layoutIdx > 0) setLayoutIdx(layoutIdx - 1); }}
                 disabled={layoutIdx === 0}
               >
@@ -798,7 +586,7 @@ export default function SetupWizard() {
               </Text>
 
               <TouchableOpacity
-                style={[styles.carouselArrow, layoutIdx === LAYOUT_OPTIONS.length - 1 && { opacity: 0.3 }]}
+                style={layoutIdx === LAYOUT_OPTIONS.length - 1 ? styles.carouselArrowDisabled : styles.carouselArrow}
                 onPress={() => { if (layoutIdx < LAYOUT_OPTIONS.length - 1) setLayoutIdx(layoutIdx + 1); }}
                 disabled={layoutIdx === LAYOUT_OPTIONS.length - 1}
               >
@@ -811,10 +599,7 @@ export default function SetupWizard() {
               {LAYOUT_OPTIONS.map((opt, i) => (
                 <View
                   key={opt.key}
-                  style={[
-                    styles.carouselDot,
-                    i === layoutIdx && { backgroundColor: ac5 },
-                  ]}
+                  style={i === layoutIdx ? styles.carouselDotActive : styles.carouselDot}
                 />
               ))}
             </View>
@@ -855,7 +640,7 @@ export default function SetupWizard() {
               style={styles.addBtn}
               onPress={() => addListItem('gatekeeperQuestions')}
             >
-              <Text style={[styles.addBtnText, { color: safeColor(data.accentColor) }]}>
+              <Text style={styles.addBtnTextAccent}>
                 + Add Question
               </Text>
             </TouchableOpacity>
@@ -896,7 +681,7 @@ export default function SetupWizard() {
               style={styles.addBtn}
               onPress={() => addListItem('communityRules')}
             >
-              <Text style={[styles.addBtnText, { color: safeColor(data.accentColor) }]}>
+              <Text style={styles.addBtnTextAccent}>
                 + Add Rule
               </Text>
             </TouchableOpacity>
@@ -913,21 +698,10 @@ export default function SetupWizard() {
             {PRICING_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt.key}
-                style={[
-                  styles.layoutCard,
-                  data.pricingType === opt.key && {
-                    borderColor: safeColor(data.accentColor),
-                    backgroundColor: '#F5F5F7',
-                  },
-                ]}
+                style={data.pricingType === opt.key ? styles.layoutCardActive : styles.layoutCard}
                 onPress={() => updateField('pricingType', opt.key)}
               >
-                <Text
-                  style={[
-                    styles.layoutTitle,
-                    data.pricingType === opt.key && { color: safeColor(data.accentColor) },
-                  ]}
-                >
+                <Text style={data.pricingType === opt.key ? styles.layoutTitleActive : styles.layoutTitle}>
                   {opt.label}
                 </Text>
                 <Text style={styles.layoutDesc}>{opt.desc}</Text>
@@ -954,12 +728,7 @@ export default function SetupWizard() {
             <View style={styles.toggleRow}>
               <Text style={styles.toggleLabel}>Accept All-Access Passport?</Text>
               <TouchableOpacity
-                style={[
-                  styles.toggle,
-                  data.acceptsPassport && {
-                    backgroundColor: safeColor(data.accentColor),
-                  },
-                ]}
+                style={data.acceptsPassport ? styles.toggleActive : styles.toggle}
                 onPress={() =>
                   updateField('acceptsPassport', !data.acceptsPassport)
                 }
@@ -1018,7 +787,7 @@ export default function SetupWizard() {
               style={styles.addBtn}
               onPress={() => addListItem('customTags')}
             >
-              <Text style={[styles.addBtnText, { color: safeColor(data.accentColor) }]}>
+              <Text style={styles.addBtnTextAccent}>
                 + Add Tag
               </Text>
             </TouchableOpacity>
@@ -1161,6 +930,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 4,
   },
+  fieldLabelSpaced: {
+    color: '#1C1C1E',
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 4,
+    marginTop: 24,
+  },
   hint: { color: '#6B6B73', fontSize: 13, marginBottom: 8 },
   footer: {
     flexDirection: 'row',
@@ -1180,6 +956,16 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   optionChipText: { color: '#6B6B73', fontSize: 14, fontWeight: '500' },
+  optionChipActive: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E63946',
+    backgroundColor: '#F5F5F7',
+    marginRight: 12,
+  },
+  optionChipTextActive: { color: '#E63946', fontSize: 14, fontWeight: '500' },
   layoutCard: {
     padding: 16,
     borderRadius: 12,
@@ -1187,7 +973,16 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5EA',
     marginBottom: 12,
   },
+  layoutCardActive: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E63946',
+    backgroundColor: '#F5F5F7',
+    marginBottom: 12,
+  },
   layoutTitle: { color: '#1C1C1E', fontSize: 16, fontWeight: '600' },
+  layoutTitleActive: { color: '#E63946', fontSize: 16, fontWeight: '600' },
   layoutDesc: { color: '#6B6B73', fontSize: 13, marginTop: 4 },
   carouselCard: {
     backgroundColor: '#FFFFFF',
@@ -1198,7 +993,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
+  carouselCardSelected: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#E63946',
+    padding: 20,
+    alignItems: 'center',
+    marginTop: 8,
+  },
   carouselTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginTop: 12 },
+  carouselTitleSelected: { fontSize: 18, fontWeight: '700', color: '#E63946', marginTop: 12 },
   carouselDesc: { fontSize: 13, color: '#6B6B73', textAlign: 'center', marginTop: 4, lineHeight: 18 },
   carouselSelectBtn: {
     marginTop: 14,
@@ -1209,7 +1014,17 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5EA',
     backgroundColor: '#F5F5F7',
   },
+  carouselSelectBtnActive: {
+    marginTop: 14,
+    paddingHorizontal: 28,
+    paddingVertical: 8,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E63946',
+    backgroundColor: '#E63946',
+  },
   carouselSelectText: { fontSize: 14, fontWeight: '700', color: '#1C1C1E' },
+  carouselSelectTextActive: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
   carouselNav: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1223,11 +1038,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F7',
     alignItems: 'center',
     justifyContent: 'center',
+    opacity: 1,
+  },
+  carouselArrowDisabled: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.3,
   },
   carouselArrowText: { fontSize: 20, fontWeight: '700', color: '#1C1C1E' },
   carouselCounter: { fontSize: 14, color: '#6B6B73', fontWeight: '600', marginLeft: 20, marginRight: 20 },
   carouselDots: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
   carouselDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E5E5EA', marginHorizontal: 3 },
+  carouselDotActive: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E63946', marginHorizontal: 3 },
   listRow: { flexDirection: 'row', alignItems: 'flex-start' },
   listInputWrap: { flex: 1 },
   removeBtn: {
@@ -1243,6 +1069,7 @@ const styles = StyleSheet.create({
   removeBtnText: { color: '#E63946', fontSize: 18, fontWeight: '700' },
   addBtn: { paddingVertical: 12 },
   addBtnText: { fontSize: 15, fontWeight: '600' },
+  addBtnTextAccent: { fontSize: 15, fontWeight: '600', color: '#E63946' },
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1256,6 +1083,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     backgroundColor: '#F5F5F7',
+  },
+  toggleActive: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#E63946',
   },
   toggleText: { color: '#1C1C1E', fontSize: 13, fontWeight: '600' },
   reviewSection: {
@@ -1300,20 +1133,32 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    margin: 4,
+  },
+  colorSwatchInactive: {
     borderWidth: 2,
     borderColor: '#F5F5F7',
-    margin: 4,
   },
   colorSwatchActive: {
     borderColor: '#1C1C1E',
     borderWidth: 3,
   },
   colorCheck: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
-  themePreview: {
+  themePreviewDark: {
     borderRadius: 16,
     borderWidth: 1,
     padding: 16,
     marginTop: 8,
+    backgroundColor: '#1C1C1E',
+    borderColor: '#2C2C2E',
+  },
+  themePreviewLight: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    marginTop: 8,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E5EA',
   },
   themePreviewHeader: {
     flexDirection: 'row',
@@ -1321,8 +1166,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   themePreviewLogo: { width: 36, height: 36, borderRadius: 8, marginRight: 10 },
-  themePreviewLogoPlaceholder: { width: 36, height: 36, borderRadius: 8, marginRight: 10 },
-  themePreviewName: { fontSize: 16, fontWeight: '700' },
-  themePreviewBar: { height: 4, borderRadius: 2, marginBottom: 10 },
-  themePreviewDesc: { fontSize: 13, lineHeight: 18 },
+  themePreviewLogoFallback: { width: 36, height: 36, borderRadius: 8, marginRight: 10, backgroundColor: '#E63946' },
+  themePreviewNameDark: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  themePreviewNameLight: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
+  themePreviewBar: { height: 4, borderRadius: 2, marginBottom: 10, backgroundColor: '#E63946' },
+  themePreviewDescDark: { fontSize: 13, lineHeight: 18, color: '#8E8E93' },
+  themePreviewDescLight: { fontSize: 13, lineHeight: 18, color: '#6B6B73' },
 });
