@@ -7,7 +7,8 @@
     "dev": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "jest --forceExit --detectOpenHandles"
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.31",
@@ -33,10 +34,25 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@testing-library/react-native": "13.3.3",
+    "@types/jest": "29.5.14",
     "@types/react": "~19.1.10",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.57.0",
+    "jest-expo": "54.0.3",
     "typescript": "^5.5.0"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@clerk/.*)"
+    ],
+    "setupFiles": ["./jest.setup.js"],
+    "modulePaths": ["<rootDir>/../../node_modules"],
+    "moduleNameMapper": {
+      "^expo-router$": "<rootDir>/__mocks__/expo-router.ts",
+      "^expo-modules-core/(.*)$": "<rootDir>/../../node_modules/expo-modules-core/$1"
+    }
   }
 }
