@@ -68,16 +68,8 @@ export default function SignUpScreen() {
       const result = await signUp.attemptPhoneNumberVerification({ code });
       console.warn('[sign-up] verify result:', JSON.stringify({ status: result.status, sessionId: result.createdSessionId }));
 
-      if (result.status === 'complete') {
-        const sessionId = result.createdSessionId ?? signUp?.createdSessionId;
-        if (sessionId) {
-          await setActive({ session: sessionId });
-        }
-      } else if (result.status === 'missing_requirements') {
-        setStep('profile');
-      } else {
-        Alert.alert('Verification', `Unexpected status: ${result.status}. Please try again.`);
-      }
+      // Always show profile step so user can enter name + optional email/password
+      setStep('profile');
     } catch (err: unknown) {
       const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
       const firstErr = clerkErr.errors?.[0];
