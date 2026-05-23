@@ -367,14 +367,18 @@ export default function SetupWizard() {
             <TouchableOpacity
               style={styles.logoPicker}
               onPress={async () => {
-                const result = await ImagePicker.launchImageLibraryAsync({
-                  mediaTypes: ['images'],
-                  allowsEditing: true,
-                  aspect: [1, 1],
-                  quality: 0.8,
-                });
-                if (!result.canceled && result.assets[0]) {
-                  updateField('logoUrl', result.assets[0].uri);
+                try {
+                  const result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ['images'],
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 0.8,
+                  });
+                  if (!result.canceled && result.assets[0]) {
+                    updateField('logoUrl', result.assets[0].uri);
+                  }
+                } catch {
+                  Alert.alert('Error', 'Could not open photo library');
                 }
               }}
             >
@@ -382,8 +386,7 @@ export default function SetupWizard() {
                 <Image source={{ uri: data.logoUrl }} style={styles.logoImage} />
               ) : (
                 <View style={styles.logoPlaceholder}>
-                  <Text style={styles.logoPlaceholderIcon}>📷</Text>
-                  <Text style={styles.logoPlaceholderText}>Choose Logo</Text>
+                  <Text style={styles.logoPlaceholderText}>+ Choose Logo</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -404,7 +407,10 @@ export default function SetupWizard() {
                   style={[
                     styles.colorSwatch,
                     { backgroundColor: color },
-                    data.accentColor === color && styles.colorSwatchSelected,
+                    data.accentColor === color && {
+                      borderColor: '#1C1C1E',
+                      borderWidth: 3,
+                    },
                   ]}
                   onPress={() => updateField('accentColor', color)}
                 >
@@ -931,19 +937,17 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 2,
     borderColor: '#E5E5EA',
-    borderStyle: 'dashed',
     overflow: 'hidden',
     marginBottom: 8,
   },
-  logoImage: { width: '100%', height: '100%' },
+  logoImage: { width: 100, height: 100 },
   logoPlaceholder: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#F5F5F7',
   },
-  logoPlaceholderIcon: { fontSize: 28 },
-  logoPlaceholderText: { fontSize: 12, color: '#6B6B73', marginTop: 4 },
+  logoPlaceholderText: { fontSize: 14, color: '#6B6B73', fontWeight: '600' },
   logoRemoveText: { color: '#E63946', fontSize: 13, fontWeight: '600', marginBottom: 16 },
   colorGrid: {
     flexDirection: 'row',
@@ -958,11 +962,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  colorSwatchSelected: {
-    borderColor: '#1C1C1E',
-    transform: [{ scale: 1.15 }],
+    borderColor: '#F5F5F7',
   },
   colorCheck: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
   themePreview: {

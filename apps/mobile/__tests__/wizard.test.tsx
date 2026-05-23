@@ -168,8 +168,8 @@ describe('Admin Setup Wizard', () => {
     // Verify step 4 renders without crashing
     expect(getByText('Branding')).toBeTruthy();
 
-    // Logo picker should show "Choose Logo" placeholder (no URL input)
-    expect(getByText('Choose Logo')).toBeTruthy();
+    // Logo picker should show "+ Choose Logo" placeholder (no URL input)
+    expect(getByText('+ Choose Logo')).toBeTruthy();
     expect(getByText('Community Logo')).toBeTruthy();
 
     // Color palette should render swatches
