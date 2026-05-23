@@ -353,13 +353,25 @@ export default function SetupWizard() {
   };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
+  const ensureDraft = useCallback(async (): Promise<string | null> => {
+    if (draftId.current) return draftId.current;
+    try {
+      const draft = await api.post<WizardDraft>('/setup-wizard', {});
+      draftId.current = draft.id;
+      return draft.id;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const handleFinalize = async () => {
     if (!data.name || !data.slug) {
       Alert.alert('Missing Info', 'Community name and slug are required.');
       return;
     }
-    if (!draftId.current) {
-      Alert.alert('Error', 'No draft found. Please restart the wizard.');
+    const resolvedDraftId = await ensureDraft();
+    if (!resolvedDraftId) {
+      Alert.alert('Error', 'Could not connect to server. Please check your connection and try again.');
       return;
     }
     setLoading(true);
@@ -374,7 +386,7 @@ export default function SetupWizard() {
         .filter((t) => t.trim())
         .map((name) => ({ name }));
 
-      await api.post(`/setup-wizard/${draftId.current}/finalize`, {
+      await api.post(`/setup-wizard/${resolvedDraftId}/finalize`, {
         name: data.name,
         slug: data.slug,
         description: data.description || undefined,
