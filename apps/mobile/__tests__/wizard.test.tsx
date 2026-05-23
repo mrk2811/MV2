@@ -221,6 +221,43 @@ describe('Admin Setup Wizard', () => {
     expect(getByText('DARK')).toBeTruthy();
   });
 
+  it('should render step 5 (layout) as horizontal carousel with visual mockups', () => {
+    const { getByText, queryByText } = render(<SetupWizard />);
+
+    // Navigate to step 5 (Layout)
+    fireEvent.press(getByText('Next')); // step 2
+    fireEvent.press(getByText('Next')); // step 3
+    fireEvent.press(getByText('Next')); // step 4
+    fireEvent.press(getByText('Next')); // step 5
+
+    // Verify step 5 renders without crashing
+    expect(getByText('Choose Your Layout')).toBeTruthy();
+    expect(getByText('Swipe to preview how members will browse profiles.')).toBeTruthy();
+
+    // Layout options should render as carousel cards with visual mockups
+    expect(getByText('Prompt-First Feed')).toBeTruthy();
+    expect(getByText('Grid Singles Roster')).toBeTruthy();
+
+    // Default selection should show "Selected" badge
+    expect(getByText('Selected')).toBeTruthy();
+  });
+
+  it('should switch layout selection on step 5 without crashing', () => {
+    const { getByText } = render(<SetupWizard />);
+
+    // Navigate to step 5
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+
+    // Tap a different layout
+    fireEvent.press(getByText('Grid Singles Roster'));
+    // Should still render without crash
+    expect(getByText('Selected')).toBeTruthy();
+    expect(getByText('Choose Your Layout')).toBeTruthy();
+  });
+
   it('should navigate between steps with Next/Back buttons', () => {
     const { getByText, queryByText } = render(<SetupWizard />);
 
