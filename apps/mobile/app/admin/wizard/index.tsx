@@ -104,15 +104,25 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
         </View>
         <View style={mck.body}>
           <Text style={mck.chSectionLabel}>TOPICS</Text>
-          {['# general', '# introductions', '# events', '# photos'].map((ch) => (
-            <View key={ch} style={[mck.chRow, { borderLeftColor: accent }]}>
-              <Text style={mck.chName}>{ch}</Text>
-              <Text style={mck.chPreview}>{ch === '# general' ? '3 new' : ''}</Text>
-            </View>
-          ))}
+          <View style={[mck.chRow, { borderLeftColor: accent }]}>
+            <Text style={mck.chName}># general</Text>
+            <Text style={mck.chPreview}>3 new</Text>
+          </View>
+          <View style={[mck.chRow, { borderLeftColor: accent }]}>
+            <Text style={mck.chName}># introductions</Text>
+            <Text style={mck.chPreview} />
+          </View>
+          <View style={[mck.chRow, { borderLeftColor: accent }]}>
+            <Text style={mck.chName}># events</Text>
+            <Text style={mck.chPreview} />
+          </View>
+          <View style={[mck.chRow, { borderLeftColor: accent }]}>
+            <Text style={mck.chName}># photos</Text>
+            <Text style={mck.chPreview} />
+          </View>
           <Text style={mck.chSectionLabel}>VOICE</Text>
           <View style={[mck.chRow, { borderLeftColor: accent }]}>
-            <Text style={mck.chName}>{'🔊 lounge'}</Text>
+            <Text style={mck.chName}>lounge</Text>
             <Text style={mck.chPreview}>2 live</Text>
           </View>
         </View>
@@ -126,25 +136,54 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
           <Text style={mck.statusBarText}>Chats</Text>
         </View>
         <View style={mck.body}>
-          {[
-            { init: 'J', name: 'Jordan', msg: 'Hey, are you coming to...', time: '2m', unread: true },
-            { init: 'M', name: 'Maya', msg: 'That sounds great!', time: '15m', unread: true },
-            { init: 'R', name: 'Riley', msg: 'See you there 👋', time: '1h', unread: false },
-            { init: 'T', name: 'Taylor', msg: 'Sent a photo', time: '3h', unread: false },
-          ].map((c) => (
-            <View key={c.name} style={mck.dmRow}>
-              <View style={[mck.dmAvatar, c.unread ? { backgroundColor: accent } : mck.dmAvatarMuted]}>
-                <Text style={mck.dmAvatarText}>{c.init}</Text>
-              </View>
-              <View style={mck.dmInfo}>
-                <View style={mck.dmTopRow}>
-                  <Text style={mck.dmName}>{c.name}</Text>
-                  <Text style={mck.dmTime}>{c.time}</Text>
-                </View>
-                <Text style={mck.dmMsg} numberOfLines={1}>{c.msg}</Text>
-              </View>
+          <View style={mck.dmRow}>
+            <View style={[mck.dmAvatar, { backgroundColor: accent }]}>
+              <Text style={mck.dmAvatarText}>J</Text>
             </View>
-          ))}
+            <View style={mck.dmInfo}>
+              <View style={mck.dmTopRow}>
+                <Text style={mck.dmName}>Jordan</Text>
+                <Text style={mck.dmTime}>2m</Text>
+              </View>
+              <Text style={mck.dmMsg}>Hey, are you coming to...</Text>
+            </View>
+          </View>
+          <View style={mck.dmRow}>
+            <View style={[mck.dmAvatar, { backgroundColor: accent }]}>
+              <Text style={mck.dmAvatarText}>M</Text>
+            </View>
+            <View style={mck.dmInfo}>
+              <View style={mck.dmTopRow}>
+                <Text style={mck.dmName}>Maya</Text>
+                <Text style={mck.dmTime}>15m</Text>
+              </View>
+              <Text style={mck.dmMsg}>That sounds great!</Text>
+            </View>
+          </View>
+          <View style={mck.dmRow}>
+            <View style={[mck.dmAvatar, mck.dmAvatarMuted]}>
+              <Text style={mck.dmAvatarText}>R</Text>
+            </View>
+            <View style={mck.dmInfo}>
+              <View style={mck.dmTopRow}>
+                <Text style={mck.dmName}>Riley</Text>
+                <Text style={mck.dmTime}>1h</Text>
+              </View>
+              <Text style={mck.dmMsg}>See you there</Text>
+            </View>
+          </View>
+          <View style={mck.dmRow}>
+            <View style={[mck.dmAvatar, mck.dmAvatarMuted]}>
+              <Text style={mck.dmAvatarText}>T</Text>
+            </View>
+            <View style={mck.dmInfo}>
+              <View style={mck.dmTopRow}>
+                <Text style={mck.dmName}>Taylor</Text>
+                <Text style={mck.dmTime}>3h</Text>
+              </View>
+              <Text style={mck.dmMsg}>Sent a photo</Text>
+            </View>
+          </View>
         </View>
       </View>
     );
@@ -157,24 +196,44 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
         </View>
         <View style={mck.body}>
           <View style={mck.gridRow}>
-            {['A', 'B', 'C'].map((l) => (
-              <View key={l} style={mck.gridCard}>
-                <View style={[mck.gridPhoto, l === 'A' ? { backgroundColor: accent } : mck.gridPhotoMuted]}>
-                  <Text style={mck.gridInitial}>{l}</Text>
-                </View>
-                <Text style={mck.gridLabel}>{l === 'A' ? 'Alex' : l === 'B' ? 'Blake' : 'Casey'}</Text>
+            <View style={mck.gridCard}>
+              <View style={[mck.gridPhoto, { backgroundColor: accent }]}>
+                <Text style={mck.gridInitial}>A</Text>
               </View>
-            ))}
+              <Text style={mck.gridLabel}>Alex</Text>
+            </View>
+            <View style={mck.gridCard}>
+              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
+                <Text style={mck.gridInitial}>B</Text>
+              </View>
+              <Text style={mck.gridLabel}>Blake</Text>
+            </View>
+            <View style={mck.gridCard}>
+              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
+                <Text style={mck.gridInitial}>C</Text>
+              </View>
+              <Text style={mck.gridLabel}>Casey</Text>
+            </View>
           </View>
           <View style={mck.gridRow}>
-            {['D', 'E', 'F'].map((l) => (
-              <View key={l} style={mck.gridCard}>
-                <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
-                  <Text style={mck.gridInitial}>{l}</Text>
-                </View>
-                <Text style={mck.gridLabel}>{l === 'D' ? 'Dana' : l === 'E' ? 'Ellis' : 'Fran'}</Text>
+            <View style={mck.gridCard}>
+              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
+                <Text style={mck.gridInitial}>D</Text>
               </View>
-            ))}
+              <Text style={mck.gridLabel}>Dana</Text>
+            </View>
+            <View style={mck.gridCard}>
+              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
+                <Text style={mck.gridInitial}>E</Text>
+              </View>
+              <Text style={mck.gridLabel}>Ellis</Text>
+            </View>
+            <View style={mck.gridCard}>
+              <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
+                <Text style={mck.gridInitial}>F</Text>
+              </View>
+              <Text style={mck.gridLabel}>Fran</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -222,7 +281,7 @@ const mck = StyleSheet.create({
   dmAvatar: { width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
   dmAvatarMuted: { backgroundColor: '#D1D1D6' },
   dmAvatarText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
-  dmInfo: { marginLeft: 8, flex: 1 },
+  dmInfo: { marginLeft: 8, width: 100 },
   dmTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   dmName: { fontSize: 10, fontWeight: '700', color: '#1C1C1E' },
   dmTime: { fontSize: 7, color: '#8E8E93' },
