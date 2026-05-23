@@ -8,9 +8,11 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as ImagePicker from 'expo-image-picker';
 import { StepIndicator } from '../../../src/components/StepIndicator';
 import { WizardButton } from '../../../src/components/WizardButton';
 import { InputField } from '../../../src/components/InputField';
@@ -22,6 +24,13 @@ const HEX_RE = /^#([0-9A-Fa-f]{3}){1,2}$/;
 function safeColor(color: string, fallback = '#E63946'): string {
   return HEX_RE.test(color) ? color : fallback;
 }
+
+const COLOR_PALETTE = [
+  '#E63946', '#FF6B6B', '#FF8C42', '#F4A261',
+  '#E9C46A', '#2A9D8F', '#06D6A0', '#4ECDC4',
+  '#3A86FF', '#6C63FF', '#8338EC', '#FF006E',
+  '#1D3557', '#457B9D', '#A8DADC', '#264653',
+];
 
 const LAYOUT_OPTIONS = [
   { key: 'PROMPT_FIRST_FEED', label: 'Prompt-First Feed', desc: 'Content-rich profiles with card-swipe navigation' },
@@ -349,36 +358,76 @@ export default function SetupWizard() {
           <View>
             <Text style={styles.stepTitle}>Branding</Text>
             <Text style={styles.stepDesc}>
-              Customize how your community looks. Upload a logo and pick colors.
+              Customize how your community looks. Pick a logo, colors, and theme.
             </Text>
-            <InputField
-              label="Logo URL"
-              hint="Optional — paste a URL to your community logo"
-              placeholder="https://..."
-              value={data.logoUrl}
-              onChangeText={(text) => updateField('logoUrl', text)}
-              autoCapitalize="none"
-              keyboardType="url"
-            />
-            <InputField
-              label="Accent Color"
-              hint="Hex color code for your community brand"
-              placeholder="#E63946"
-              value={data.accentColor}
-              onChangeText={(text) => updateField('accentColor', text)}
-              autoCapitalize="none"
-            />
-            <Text style={styles.fieldLabel}>Theme Mode</Text>
+
+            {/* Logo Picker */}
+            <Text style={styles.fieldLabel}>Community Logo</Text>
+            <Text style={styles.hint}>Tap to select from your photo library</Text>
+            <TouchableOpacity
+              style={styles.logoPicker}
+              onPress={async () => {
+                const result = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ['images'],
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.8,
+                });
+                if (!result.canceled && result.assets[0]) {
+                  updateField('logoUrl', result.assets[0].uri);
+                }
+              }}
+            >
+              {data.logoUrl ? (
+                <Image source={{ uri: data.logoUrl }} style={styles.logoImage} />
+              ) : (
+                <View style={styles.logoPlaceholder}>
+                  <Text style={styles.logoPlaceholderIcon}>📷</Text>
+                  <Text style={styles.logoPlaceholderText}>Choose Logo</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            {data.logoUrl ? (
+              <TouchableOpacity onPress={() => updateField('logoUrl', '')}>
+                <Text style={styles.logoRemoveText}>Remove Logo</Text>
+              </TouchableOpacity>
+            ) : null}
+
+            {/* Color Palette */}
+            <Text style={[styles.fieldLabel, { marginTop: 24 }]}>Accent Color</Text>
+            <Text style={styles.hint}>Pick a color for your community brand</Text>
+            <View style={styles.colorGrid}>
+              {COLOR_PALETTE.map((color) => (
+                <TouchableOpacity
+                  key={color}
+                  testID={`color-swatch-${color}`}
+                  style={[
+                    styles.colorSwatch,
+                    { backgroundColor: color },
+                    data.accentColor === color && styles.colorSwatchSelected,
+                  ]}
+                  onPress={() => updateField('accentColor', color)}
+                >
+                  {data.accentColor === color && (
+                    <Text style={styles.colorCheck}>✓</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Theme Mode with Live Preview */}
+            <Text style={[styles.fieldLabel, { marginTop: 24 }]}>Theme Mode</Text>
+            <Text style={styles.hint}>Pick a theme — see a live preview below</Text>
             <View style={styles.optionRow}>
               {(['DARK', 'LIGHT'] as const).map((mode) => (
                 <TouchableOpacity
                   key={mode}
                   style={[
                     styles.optionChip,
-                        data.themeMode === mode && {
-                          borderColor: safeColor(data.accentColor),
-                          backgroundColor: safeColor(data.accentColor) + '20',
-                        },
+                    data.themeMode === mode && {
+                      borderColor: safeColor(data.accentColor),
+                      backgroundColor: safeColor(data.accentColor) + '20',
+                    },
                   ]}
                   onPress={() => updateField('themeMode', mode)}
                 >
@@ -392,6 +441,42 @@ export default function SetupWizard() {
                   </Text>
                 </TouchableOpacity>
               ))}
+            </View>
+
+            {/* Live Theme Preview */}
+            <View
+              style={[
+                styles.themePreview,
+                {
+                  backgroundColor: data.themeMode === 'DARK' ? '#1C1C1E' : '#FFFFFF',
+                  borderColor: data.themeMode === 'DARK' ? '#2C2C2E' : '#E5E5EA',
+                },
+              ]}
+            >
+              <View style={styles.themePreviewHeader}>
+                {data.logoUrl ? (
+                  <Image source={{ uri: data.logoUrl }} style={styles.themePreviewLogo} />
+                ) : (
+                  <View style={[styles.themePreviewLogoPlaceholder, { backgroundColor: safeColor(data.accentColor) }]} />
+                )}
+                <Text
+                  style={[
+                    styles.themePreviewName,
+                    { color: data.themeMode === 'DARK' ? '#FFFFFF' : '#1C1C1E' },
+                  ]}
+                >
+                  {data.name || 'Community Name'}
+                </Text>
+              </View>
+              <View style={[styles.themePreviewBar, { backgroundColor: safeColor(data.accentColor) }]} />
+              <Text
+                style={[
+                  styles.themePreviewDesc,
+                  { color: data.themeMode === 'DARK' ? '#8E8E93' : '#6B6B73' },
+                ]}
+              >
+                {data.description || 'Your community description will appear here'}
+              </Text>
             </View>
           </View>
         );
@@ -840,4 +925,60 @@ const styles = StyleSheet.create({
   },
   reviewLabel: { color: '#6B6B73', fontSize: 14 },
   reviewValue: { color: '#1C1C1E', fontSize: 14, fontWeight: '500', maxWidth: '60%', textAlign: 'right' },
+  logoPicker: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#E5E5EA',
+    borderStyle: 'dashed',
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  logoImage: { width: '100%', height: '100%' },
+  logoPlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F5F7',
+  },
+  logoPlaceholderIcon: { fontSize: 28 },
+  logoPlaceholderText: { fontSize: 12, color: '#6B6B73', marginTop: 4 },
+  logoRemoveText: { color: '#E63946', fontSize: 13, fontWeight: '600', marginBottom: 16 },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 12,
+  },
+  colorSwatch: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  colorSwatchSelected: {
+    borderColor: '#1C1C1E',
+    transform: [{ scale: 1.15 }],
+  },
+  colorCheck: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
+  themePreview: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    marginTop: 8,
+  },
+  themePreviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  themePreviewLogo: { width: 36, height: 36, borderRadius: 8, marginRight: 10 },
+  themePreviewLogoPlaceholder: { width: 36, height: 36, borderRadius: 8, marginRight: 10 },
+  themePreviewName: { fontSize: 16, fontWeight: '700' },
+  themePreviewBar: { height: 4, borderRadius: 2, marginBottom: 10 },
+  themePreviewDesc: { fontSize: 13, lineHeight: 18 },
 });

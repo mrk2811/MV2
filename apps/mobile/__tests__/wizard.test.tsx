@@ -8,6 +8,9 @@
  * - Next/Back buttons render in footer
  * - Multiline description input uses minHeight style instead of numberOfLines
  * - Accent color validation prevents crash when color is empty/partial (safeColor)
+ * - Logo picker uses expo-image-picker instead of URL input
+ * - Color palette for accent color selection (no more hex input)
+ * - Real-time theme preview when selecting DARK/LIGHT
  */
 
 import React from 'react';
@@ -18,6 +21,13 @@ import { InputField } from '../src/components/InputField';
 
 jest.mock('expo-status-bar', () => ({
   StatusBar: () => null,
+}));
+
+jest.mock('expo-image-picker', () => ({
+  launchImageLibraryAsync: jest.fn().mockResolvedValue({
+    canceled: true,
+    assets: [],
+  }),
 }));
 
 jest.mock('../src/api/client', () => ({
@@ -147,12 +157,8 @@ describe('Admin Setup Wizard', () => {
     expect(getByText('Description')).toBeTruthy();
   });
 
-  it('should not crash on step 4 (branding) with empty/partial accent color', () => {
-    // BUG FIX: Typing in the accent color field caused a crash because
-    // intermediate values (empty string, partial hex like "#E6") were used
-    // directly in style props (backgroundColor, borderColor). The safeColor()
-    // helper now validates hex before applying it to styles.
-    const { getByText } = render(<SetupWizard />);
+  it('should render step 4 (branding) with logo picker, color palette, and theme preview', () => {
+    const { getByText, getAllByTestId } = render(<SetupWizard />);
 
     // Navigate to step 4 (Branding)
     fireEvent.press(getByText('Next')); // step 2
@@ -161,11 +167,58 @@ describe('Admin Setup Wizard', () => {
 
     // Verify step 4 renders without crashing
     expect(getByText('Branding')).toBeTruthy();
+
+    // Logo picker should show "Choose Logo" placeholder (no URL input)
+    expect(getByText('Choose Logo')).toBeTruthy();
+    expect(getByText('Community Logo')).toBeTruthy();
+
+    // Color palette should render swatches
+    expect(getByText('Accent Color')).toBeTruthy();
+    const swatches = getAllByTestId(/^color-swatch-/);
+    expect(swatches.length).toBe(16);
+
+    // Theme mode chips should exist
     expect(getByText('Theme Mode')).toBeTruthy();
-    // The DARK chip uses accentColor for styling — if safeColor wasn't in place,
-    // clearing the color field would crash here
     expect(getByText('DARK')).toBeTruthy();
     expect(getByText('LIGHT')).toBeTruthy();
+
+    // Live theme preview should show
+    expect(getByText('Community Name')).toBeTruthy();
+    expect(getByText('Your community description will appear here')).toBeTruthy();
+  });
+
+  it('should select a color from the palette on step 4', () => {
+    const { getByText, getByTestId } = render(<SetupWizard />);
+
+    // Navigate to step 4
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+
+    // Tap a color swatch — should not crash and should show checkmark
+    const blueSwatch = getByTestId('color-swatch-#3A86FF');
+    fireEvent.press(blueSwatch);
+    // The checkmark character appears inside the selected swatch
+    expect(getByText('\u2713')).toBeTruthy();
+  });
+
+  it('should toggle theme mode and update preview on step 4', () => {
+    const { getByText } = render(<SetupWizard />);
+
+    // Navigate to step 4
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+
+    // Default is DARK — tap LIGHT
+    fireEvent.press(getByText('LIGHT'));
+    // Preview and chips should still render (no crash)
+    expect(getByText('LIGHT')).toBeTruthy();
+    expect(getByText('DARK')).toBeTruthy();
+
+    // Toggle back to DARK
+    fireEvent.press(getByText('DARK'));
+    expect(getByText('DARK')).toBeTruthy();
   });
 
   it('should navigate between steps with Next/Back buttons', () => {
