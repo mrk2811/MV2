@@ -9,7 +9,7 @@ export default function HomeScreen() {
   const { signOut } = useAuth();
   const { user } = useUser();
 
-  const displayName = user?.phoneNumbers?.[0]?.phoneNumber || 'Member';
+  const displayName = user?.firstName || user?.phoneNumbers?.[0]?.phoneNumber || 'Member';
 
   return (
     <View style={styles.container}>

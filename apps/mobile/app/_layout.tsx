@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, Component, type ReactNode } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { ClerkProvider, ClerkLoaded, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '../src/auth/token-cache';
@@ -51,12 +52,39 @@ function AuthGate() {
   );
 }
 
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidMount() {
+    this.sub = AppState.addEventListener('change', this.onAppState);
+  }
+  componentWillUnmount() {
+    this.sub?.remove();
+  }
+  private sub: ReturnType<typeof AppState.addEventListener> | null = null;
+  private onAppState = (state: AppStateStatus) => {
+    if (state === 'active' && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  };
+  render() {
+    if (this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+    return this.props.children;
+  }
+}
+
 export default function RootLayout() {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
-      <ClerkLoaded>
-        <AuthGate />
-      </ClerkLoaded>
-    </ClerkProvider>
+    <ErrorBoundary>
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
+        <ClerkLoaded>
+          <AuthGate />
+        </ClerkLoaded>
+      </ClerkProvider>
+    </ErrorBoundary>
   );
 }

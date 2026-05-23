@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -691,7 +693,10 @@ export default function SetupWizard() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <StatusBar style="light" />
       <StepIndicator
         currentStep={step}
@@ -729,7 +734,7 @@ export default function SetupWizard() {
           />
         )}
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
