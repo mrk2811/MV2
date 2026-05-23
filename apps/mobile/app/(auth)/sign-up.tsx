@@ -64,20 +64,15 @@ export default function SignUpScreen() {
     setLoading(true);
     try {
       const result = await signUp.attemptPhoneNumberVerification({ code });
-      const sessionId = result.createdSessionId ?? signUp?.createdSessionId;
+      console.warn('[sign-up] verify result:', JSON.stringify({ status: result.status, sessionId: result.createdSessionId }));
 
-      if (result.status === 'complete' && sessionId) {
-        await setActive({ session: sessionId });
-      } else if (result.status === 'missing_requirements') {
-        const missing = (result as unknown as { missingFields?: string[] }).missingFields ?? [];
-        const needsName = missing.includes('first_name') || missing.includes('last_name');
-        if (needsName) {
-          setStep('name');
-        } else {
-          await activateSession();
+      if (result.status === 'complete') {
+        const sessionId = result.createdSessionId ?? signUp?.createdSessionId;
+        if (sessionId) {
+          await setActive({ session: sessionId });
         }
-      } else if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId as string });
+      } else if (result.status === 'missing_requirements') {
+        setStep('name');
       } else {
         Alert.alert('Verification', `Unexpected status: ${result.status}. Please try again.`);
       }
@@ -94,7 +89,7 @@ export default function SignUpScreen() {
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, code, signUp, setActive, activateSession]);
+  }, [isLoaded, code, signUp, setActive]);
 
   const onSubmitName = useCallback(async () => {
     if (!isLoaded || !signUp) return;
