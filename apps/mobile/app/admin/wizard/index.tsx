@@ -44,26 +44,25 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
   if (type === 'PROMPT_FIRST_FEED') {
     return (
       <View style={mck.phone}>
-        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
-        <View style={mck.phoneBody}>
-          <View style={mck.profileCard}>
-            <View style={[mck.profilePic, { backgroundColor: accent }]} />
-            <View style={mck.profileInfo}>
-              <View style={[mck.barDark, mck.barW70]} />
-              <View style={[mck.barLight, mck.barW90]} />
-              <View style={[mck.barLight, mck.barW50]} />
+        <View style={[mck.statusBar, { backgroundColor: accent }]}>
+          <Text style={mck.statusBarText}>Discover</Text>
+        </View>
+        <View style={mck.body}>
+          <View style={[mck.swipeCard, { borderColor: accent }]}>
+            <View style={[mck.swipePhoto, { backgroundColor: accent }]}>
+              <Text style={mck.swipeInitial}>A</Text>
+            </View>
+            <View style={mck.swipeInfo}>
+              <Text style={mck.swipeName}>Alex, 28</Text>
+              <Text style={mck.swipeBio}>Loves hiking and coffee...</Text>
             </View>
           </View>
-          <View style={mck.actionRow}>
-            <View style={[mck.actionBtn, mck.actionBtnLight]} />
-            <View style={[mck.actionBtn, mck.actionBtnR, { backgroundColor: accent }]} />
-          </View>
-          <View style={mck.divider} />
-          <View style={mck.profileCard}>
-            <View style={[mck.profilePicSm, mck.bgLight]} />
-            <View style={mck.profileInfo}>
-              <View style={[mck.barLight, mck.barW70]} />
-              <View style={[mck.barLight, mck.barW50]} />
+          <View style={mck.swipeBtns}>
+            <View style={mck.swipeBtnX}>
+              <Text style={mck.swipeBtnXText}>✕</Text>
+            </View>
+            <View style={[mck.swipeBtnHeart, { backgroundColor: accent }]}>
+              <Text style={mck.swipeBtnHeartText}>♥</Text>
             </View>
           </View>
         </View>
@@ -73,21 +72,25 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
   if (type === 'CURATED_MATCH_QUEUE') {
     return (
       <View style={mck.phone}>
-        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
-        <View style={mck.phoneBody}>
-          <View style={mck.matchRow}>
-            <View style={[mck.matchThumb, { backgroundColor: accent }]} />
-            <View style={[mck.matchThumb, mck.matchThumbR, mck.bgLight]} />
+        <View style={[mck.statusBar, { backgroundColor: accent }]}>
+          <Text style={mck.statusBarText}>Matches</Text>
+        </View>
+        <View style={mck.body}>
+          <Text style={mck.matchHeader}>{"Today's Match"}</Text>
+          <View style={[mck.matchPhoto, { backgroundColor: accent }]}>
+            <Text style={mck.matchInitial}>S</Text>
           </View>
-          <View style={[mck.barDark, mck.barCenter]} />
-          <View style={[mck.matchBtn, { backgroundColor: accent }]}>
-            <Text style={mck.matchBtnText}>Match</Text>
+          <Text style={mck.matchName}>Sam, 26</Text>
+          <Text style={mck.matchCompat}>92% Compatible</Text>
+          <View style={[mck.matchConnectBtn, { backgroundColor: accent }]}>
+            <Text style={mck.matchConnectText}>Connect</Text>
           </View>
-          <View style={mck.divider} />
-          <View style={mck.matchRow}>
-            <View style={[mck.matchThumbSm, mck.bgLight]} />
-            <View style={[mck.matchThumbSm, mck.matchThumbR, mck.bgLight]} />
-            <View style={[mck.matchThumbSm, mck.matchThumbR, mck.bgLight]} />
+          <View style={mck.matchDivider} />
+          <Text style={mck.matchQueueLabel}>Up Next</Text>
+          <View style={mck.matchQueueRow}>
+            <View style={mck.matchQueueThumb} />
+            <View style={mck.matchQueueThumb} />
+            <View style={mck.matchQueueThumb} />
           </View>
         </View>
       </View>
@@ -96,16 +99,22 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
   if (type === 'DISCORD_CHANNEL_MATRIX') {
     return (
       <View style={mck.phone}>
-        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
-        <View style={mck.phoneBody}>
-          {['general', 'intros', 'events', 'photos'].map((ch) => (
-            <View key={ch} style={[mck.channelItem, { borderLeftColor: accent }]}>
-              <Text style={mck.channelText}>{'# ' + ch}</Text>
+        <View style={[mck.statusBar, { backgroundColor: accent }]}>
+          <Text style={mck.statusBarText}>Channels</Text>
+        </View>
+        <View style={mck.body}>
+          <Text style={mck.chSectionLabel}>TOPICS</Text>
+          {['# general', '# introductions', '# events', '# photos'].map((ch) => (
+            <View key={ch} style={[mck.chRow, { borderLeftColor: accent }]}>
+              <Text style={mck.chName}>{ch}</Text>
+              <Text style={mck.chPreview}>{ch === '# general' ? '3 new' : ''}</Text>
             </View>
           ))}
-          <View style={mck.divider} />
-          <View style={[mck.barLight, mck.barW90]} />
-          <View style={[mck.barLight, mck.barW70]} />
+          <Text style={mck.chSectionLabel}>VOICE</Text>
+          <View style={[mck.chRow, { borderLeftColor: accent }]}>
+            <Text style={mck.chName}>{'🔊 lounge'}</Text>
+            <Text style={mck.chPreview}>2 live</Text>
+          </View>
         </View>
       </View>
     );
@@ -113,36 +122,29 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
   if (type === 'WHATSAPP_DIRECT_LIST') {
     return (
       <View style={mck.phone}>
-        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
-        <View style={mck.phoneBody}>
-          <View style={mck.chatItem}>
-            <View style={[mck.chatDot, { backgroundColor: accent }]} />
-            <View style={mck.chatInfo}>
-              <View style={[mck.barDark, mck.barW50]} />
-              <View style={[mck.barLight, mck.barW90]} />
+        <View style={[mck.statusBar, { backgroundColor: accent }]}>
+          <Text style={mck.statusBarText}>Chats</Text>
+        </View>
+        <View style={mck.body}>
+          {[
+            { init: 'J', name: 'Jordan', msg: 'Hey, are you coming to...', time: '2m', unread: true },
+            { init: 'M', name: 'Maya', msg: 'That sounds great!', time: '15m', unread: true },
+            { init: 'R', name: 'Riley', msg: 'See you there 👋', time: '1h', unread: false },
+            { init: 'T', name: 'Taylor', msg: 'Sent a photo', time: '3h', unread: false },
+          ].map((c) => (
+            <View key={c.name} style={mck.dmRow}>
+              <View style={[mck.dmAvatar, c.unread ? { backgroundColor: accent } : mck.dmAvatarMuted]}>
+                <Text style={mck.dmAvatarText}>{c.init}</Text>
+              </View>
+              <View style={mck.dmInfo}>
+                <View style={mck.dmTopRow}>
+                  <Text style={mck.dmName}>{c.name}</Text>
+                  <Text style={mck.dmTime}>{c.time}</Text>
+                </View>
+                <Text style={mck.dmMsg} numberOfLines={1}>{c.msg}</Text>
+              </View>
             </View>
-          </View>
-          <View style={mck.chatItem}>
-            <View style={[mck.chatDot, mck.bgLight]} />
-            <View style={mck.chatInfo}>
-              <View style={[mck.barDark, mck.barW70]} />
-              <View style={[mck.barLight, mck.barW50]} />
-            </View>
-          </View>
-          <View style={mck.chatItem}>
-            <View style={[mck.chatDot, mck.bgLight]} />
-            <View style={mck.chatInfo}>
-              <View style={[mck.barDark, mck.barW50]} />
-              <View style={[mck.barLight, mck.barW70]} />
-            </View>
-          </View>
-          <View style={mck.divider} />
-          <View style={mck.chatItem}>
-            <View style={[mck.chatDot, mck.bgLight]} />
-            <View style={mck.chatInfo}>
-              <View style={[mck.barLight, mck.barW70]} />
-            </View>
-          </View>
+          ))}
         </View>
       </View>
     );
@@ -150,18 +152,29 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
   if (type === 'GRID_SINGLES_ROSTER') {
     return (
       <View style={mck.phone}>
-        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
-        <View style={mck.phoneBody}>
-          <View style={mck.gridWrap}>
-            <View style={[mck.gridItem, { backgroundColor: accent }]} />
-            <View style={[mck.gridItem, mck.bgLight]} />
-            <View style={[mck.gridItem, mck.bgLight]} />
-            <View style={[mck.gridItem, mck.bgLight]} />
-            <View style={[mck.gridItem, mck.bgLight]} />
-            <View style={[mck.gridItem, mck.bgLight]} />
-            <View style={[mck.gridItem, mck.bgLight]} />
-            <View style={[mck.gridItem, mck.bgLight]} />
-            <View style={[mck.gridItem, mck.bgLight]} />
+        <View style={[mck.statusBar, { backgroundColor: accent }]}>
+          <Text style={mck.statusBarText}>Members</Text>
+        </View>
+        <View style={mck.body}>
+          <View style={mck.gridRow}>
+            {['A', 'B', 'C'].map((l) => (
+              <View key={l} style={mck.gridCard}>
+                <View style={[mck.gridPhoto, l === 'A' ? { backgroundColor: accent } : mck.gridPhotoMuted]}>
+                  <Text style={mck.gridInitial}>{l}</Text>
+                </View>
+                <Text style={mck.gridLabel}>{l === 'A' ? 'Alex' : l === 'B' ? 'Blake' : 'Casey'}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={mck.gridRow}>
+            {['D', 'E', 'F'].map((l) => (
+              <View key={l} style={mck.gridCard}>
+                <View style={[mck.gridPhoto, mck.gridPhotoMuted]}>
+                  <Text style={mck.gridInitial}>{l}</Text>
+                </View>
+                <Text style={mck.gridLabel}>{l === 'D' ? 'Dana' : l === 'E' ? 'Ellis' : 'Fran'}</Text>
+              </View>
+            ))}
           </View>
         </View>
       </View>
@@ -172,37 +185,55 @@ function LayoutMockup({ type, accent }: { type: string; accent: string }) {
 
 const mck = StyleSheet.create({
   phone: { width: 180, height: 280, borderRadius: 16, borderWidth: 2, borderColor: '#E5E5EA', backgroundColor: '#FFFFFF', alignSelf: 'center' },
-  phoneBar: { height: 8, borderTopLeftRadius: 14, borderTopRightRadius: 14 },
-  phoneBody: { padding: 12 },
-  bgLight: { backgroundColor: '#E5E5EA' },
-  profileCard: { flexDirection: 'row', alignItems: 'center' },
-  profileInfo: { marginLeft: 10 },
-  profilePic: { width: 44, height: 44, borderRadius: 22 },
-  profilePicSm: { width: 32, height: 32, borderRadius: 16 },
-  barDark: { height: 6, borderRadius: 3, marginBottom: 4, backgroundColor: '#1C1C1E' },
-  barLight: { height: 6, borderRadius: 3, marginBottom: 4, backgroundColor: '#E5E5EA' },
-  barW50: { width: 50 },
-  barW70: { width: 70 },
-  barW90: { width: 90 },
-  barCenter: { width: 80, alignSelf: 'center', marginTop: 8 },
-  actionRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
-  actionBtn: { width: 36, height: 36, borderRadius: 18 },
-  actionBtnLight: { backgroundColor: '#E5E5EA' },
-  actionBtnR: { marginLeft: 14 },
-  divider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 10 },
-  matchRow: { flexDirection: 'row', justifyContent: 'center' },
-  matchThumb: { width: 60, height: 72, borderRadius: 10 },
-  matchThumbR: { marginLeft: 8 },
-  matchThumbSm: { width: 40, height: 48, borderRadius: 6 },
-  matchBtn: { alignItems: 'center', paddingVertical: 8, borderRadius: 12, marginTop: 10 },
-  matchBtnText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
-  channelItem: { paddingVertical: 8, paddingHorizontal: 10, borderLeftWidth: 3, marginBottom: 6, backgroundColor: '#F5F5F7', borderRadius: 4 },
-  channelText: { fontSize: 12, color: '#1C1C1E', fontWeight: '600' },
-  chatItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  chatDot: { width: 28, height: 28, borderRadius: 14 },
-  chatInfo: { marginLeft: 10 },
-  gridWrap: { flexDirection: 'row', flexWrap: 'wrap' },
-  gridItem: { width: 48, height: 48, borderRadius: 8, margin: 2 },
+  statusBar: { height: 28, borderTopLeftRadius: 14, borderTopRightRadius: 14, justifyContent: 'center', alignItems: 'center' },
+  statusBarText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
+  body: { paddingHorizontal: 10, paddingTop: 8 },
+  /* Swipe / Prompt-First */
+  swipeCard: { borderWidth: 1, borderRadius: 10, alignItems: 'center', paddingBottom: 6 },
+  swipePhoto: { width: 140, height: 90, borderTopLeftRadius: 9, borderTopRightRadius: 9, justifyContent: 'center', alignItems: 'center' },
+  swipeInitial: { color: '#FFF', fontSize: 28, fontWeight: '800' },
+  swipeInfo: { alignItems: 'center', paddingTop: 4 },
+  swipeName: { fontSize: 12, fontWeight: '700', color: '#1C1C1E' },
+  swipeBio: { fontSize: 8, color: '#8E8E93', marginTop: 1 },
+  swipeBtns: { flexDirection: 'row', justifyContent: 'center', marginTop: 10 },
+  swipeBtnX: { width: 32, height: 32, borderRadius: 16, borderWidth: 2, borderColor: '#E5E5EA', justifyContent: 'center', alignItems: 'center' },
+  swipeBtnXText: { fontSize: 14, color: '#8E8E93', fontWeight: '700' },
+  swipeBtnHeart: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginLeft: 16 },
+  swipeBtnHeartText: { fontSize: 14, color: '#FFF' },
+  /* Match Queue */
+  matchHeader: { fontSize: 10, fontWeight: '600', color: '#8E8E93', textAlign: 'center', marginBottom: 6 },
+  matchPhoto: { width: 60, height: 60, borderRadius: 30, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' },
+  matchInitial: { color: '#FFF', fontSize: 22, fontWeight: '800' },
+  matchName: { fontSize: 12, fontWeight: '700', color: '#1C1C1E', textAlign: 'center', marginTop: 4 },
+  matchCompat: { fontSize: 8, color: '#8E8E93', textAlign: 'center', marginTop: 1 },
+  matchConnectBtn: { alignSelf: 'center', paddingHorizontal: 20, paddingVertical: 5, borderRadius: 10, marginTop: 6 },
+  matchConnectText: { color: '#FFF', fontSize: 10, fontWeight: '700' },
+  matchDivider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 8 },
+  matchQueueLabel: { fontSize: 9, fontWeight: '600', color: '#8E8E93', marginBottom: 4 },
+  matchQueueRow: { flexDirection: 'row' },
+  matchQueueThumb: { width: 32, height: 32, borderRadius: 8, backgroundColor: '#E5E5EA', marginRight: 6 },
+  /* Discord Channels */
+  chSectionLabel: { fontSize: 8, fontWeight: '700', color: '#8E8E93', letterSpacing: 0.8, marginBottom: 4, marginTop: 4 },
+  chRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 8, borderLeftWidth: 3, marginBottom: 3, backgroundColor: '#F5F5F7', borderRadius: 4 },
+  chName: { fontSize: 10, color: '#1C1C1E', fontWeight: '600' },
+  chPreview: { fontSize: 8, color: '#8E8E93' },
+  /* WhatsApp DM List */
+  dmRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  dmAvatar: { width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
+  dmAvatarMuted: { backgroundColor: '#D1D1D6' },
+  dmAvatarText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
+  dmInfo: { marginLeft: 8, flex: 1 },
+  dmTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  dmName: { fontSize: 10, fontWeight: '700', color: '#1C1C1E' },
+  dmTime: { fontSize: 7, color: '#8E8E93' },
+  dmMsg: { fontSize: 8, color: '#8E8E93', marginTop: 1 },
+  /* Grid Roster */
+  gridRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  gridCard: { alignItems: 'center', width: 48 },
+  gridPhoto: { width: 44, height: 44, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+  gridPhotoMuted: { backgroundColor: '#D1D1D6' },
+  gridInitial: { color: '#FFF', fontSize: 18, fontWeight: '800' },
+  gridLabel: { fontSize: 8, color: '#1C1C1E', fontWeight: '600', marginTop: 2 },
 });
 
 const PRICING_OPTIONS = [
