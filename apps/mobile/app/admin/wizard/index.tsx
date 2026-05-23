@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
-  Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -33,112 +32,117 @@ const COLOR_PALETTE = [
   '#1D3557', '#457B9D', '#A8DADC', '#264653',
 ];
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const CARD_WIDTH = SCREEN_WIDTH - 80;
-
 const LAYOUT_OPTIONS = [
-  { key: 'PROMPT_FIRST_FEED', label: 'Prompt-First Feed', desc: 'Content-rich profiles with card-swipe navigation', icon: 'swipe' },
-  { key: 'CURATED_MATCH_QUEUE', label: 'Curated Match Queue', desc: 'Recommendation-driven guided matchmaking', icon: 'match' },
-  { key: 'DISCORD_CHANNEL_MATRIX', label: 'Discord-Style Channels', desc: 'Categorized list hubs for directory separation', icon: 'channels' },
-  { key: 'WHATSAPP_DIRECT_LIST', label: 'WhatsApp-Style List', desc: 'Streamlined chat-first interface', icon: 'chat' },
-  { key: 'GRID_SINGLES_ROSTER', label: 'Grid Singles Roster', desc: 'High-density photo directory grid', icon: 'grid' },
+  { key: 'PROMPT_FIRST_FEED', label: 'Prompt-First Feed', desc: 'Swipe through rich profiles like dating apps' },
+  { key: 'CURATED_MATCH_QUEUE', label: 'Curated Match Queue', desc: 'Get matched with recommended people' },
+  { key: 'DISCORD_CHANNEL_MATRIX', label: 'Discord-Style Channels', desc: 'Browse organized topic channels' },
+  { key: 'WHATSAPP_DIRECT_LIST', label: 'WhatsApp-Style List', desc: 'Chat-first with a clean message list' },
+  { key: 'GRID_SINGLES_ROSTER', label: 'Grid Singles Roster', desc: 'Photo grid directory of members' },
 ];
 
-function LayoutMockup({ icon, accent }: { icon: string; accent: string }) {
-  switch (icon) {
-    case 'swipe':
-      return (
-        <View style={mockStyles.container}>
-          <View style={[mockStyles.bigCard, { borderColor: accent }]}>
-            <View style={[mockStyles.avatar, { backgroundColor: accent }]} />
-            <View style={mockStyles.lines}>
-              <View style={[mockStyles.line, { width: 80, backgroundColor: accent }]} />
-              <View style={[mockStyles.line, { width: 60, backgroundColor: '#E5E5EA' }]} />
+function LayoutMockup({ type, accent }: { type: string; accent: string }) {
+  const ph = '#E5E5EA';
+  if (type === 'PROMPT_FIRST_FEED') {
+    return (
+      <View style={mck.phone}>
+        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
+        <View style={mck.phoneBody}>
+          <View style={[mck.profileCard]}>
+            <View style={[mck.profilePic, { backgroundColor: accent }]} />
+            <View style={{ marginLeft: 10, flex: 1 }}>
+              <View style={[mck.bar, { width: 70, backgroundColor: '#1C1C1E' }]} />
+              <View style={[mck.bar, { width: 90, backgroundColor: ph }]} />
+              <View style={[mck.bar, { width: 50, backgroundColor: ph }]} />
             </View>
           </View>
-          <View style={mockStyles.dots}>
-            <View style={[mockStyles.dot, { backgroundColor: accent }]} />
-            <View style={[mockStyles.dot, { backgroundColor: '#E5E5EA' }]} />
-            <View style={[mockStyles.dot, { backgroundColor: '#E5E5EA' }]} />
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
+            <View style={[mck.actionBtn, { backgroundColor: ph }]} />
+            <View style={[mck.actionBtn, { backgroundColor: accent, marginLeft: 12 }]} />
           </View>
         </View>
-      );
-    case 'match':
-      return (
-        <View style={mockStyles.container}>
-          <View style={[mockStyles.matchRow]}>
-            <View style={[mockStyles.matchCard, { borderColor: accent }]}>
-              <View style={[mockStyles.avatar, { backgroundColor: accent }]} />
-              <View style={[mockStyles.line, { width: 40, backgroundColor: accent, marginTop: 6 }]} />
-            </View>
-            <View style={[mockStyles.matchCard, { borderColor: '#E5E5EA' }]}>
-              <View style={[mockStyles.avatar, { backgroundColor: '#E5E5EA' }]} />
-              <View style={[mockStyles.line, { width: 40, backgroundColor: '#E5E5EA', marginTop: 6 }]} />
-            </View>
+      </View>
+    );
+  }
+  if (type === 'CURATED_MATCH_QUEUE') {
+    return (
+      <View style={mck.phone}>
+        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
+        <View style={mck.phoneBody}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <View style={[mck.matchThumb, { backgroundColor: accent }]} />
+            <View style={[mck.matchThumb, { backgroundColor: ph, marginLeft: 8 }]} />
           </View>
-          <View style={[mockStyles.btnMock, { backgroundColor: accent }]}>
-            <Text style={mockStyles.btnText}>Match</Text>
+          <View style={[mck.bar, { width: 80, backgroundColor: '#1C1C1E', alignSelf: 'center', marginTop: 8 }]} />
+          <View style={[mck.bigBtn, { backgroundColor: accent, marginTop: 10 }]}>
+            <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '700' }}>Match</Text>
           </View>
         </View>
-      );
-    case 'channels':
-      return (
-        <View style={mockStyles.container}>
-          {['# general', '# introductions', '# events'].map((ch) => (
-            <View key={ch} style={[mockStyles.channelRow, { borderLeftColor: accent }]}>
-              <Text style={[mockStyles.channelText, { color: '#1C1C1E' }]}>{ch}</Text>
+      </View>
+    );
+  }
+  if (type === 'DISCORD_CHANNEL_MATRIX') {
+    return (
+      <View style={mck.phone}>
+        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
+        <View style={mck.phoneBody}>
+          {['general', 'intros', 'events'].map((ch) => (
+            <View key={ch} style={[mck.channelItem, { borderLeftColor: accent }]}>
+              <Text style={{ fontSize: 11, color: '#1C1C1E', fontWeight: '600' }}>{'# ' + ch}</Text>
             </View>
           ))}
         </View>
-      );
-    case 'chat':
-      return (
-        <View style={mockStyles.container}>
+      </View>
+    );
+  }
+  if (type === 'WHATSAPP_DIRECT_LIST') {
+    return (
+      <View style={mck.phone}>
+        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
+        <View style={mck.phoneBody}>
           {[1, 2, 3].map((i) => (
-            <View key={i} style={mockStyles.chatRow}>
-              <View style={[mockStyles.chatAvatar, { backgroundColor: i === 1 ? accent : '#E5E5EA' }]} />
-              <View style={mockStyles.chatLines}>
-                <View style={[mockStyles.line, { width: 60, backgroundColor: '#1C1C1E' }]} />
-                <View style={[mockStyles.line, { width: 100, backgroundColor: '#E5E5EA' }]} />
+            <View key={i} style={mck.chatItem}>
+              <View style={[mck.chatDot, { backgroundColor: i === 1 ? accent : ph }]} />
+              <View style={{ marginLeft: 8, flex: 1 }}>
+                <View style={[mck.bar, { width: 50, backgroundColor: '#1C1C1E' }]} />
+                <View style={[mck.bar, { width: 80, backgroundColor: ph }]} />
               </View>
             </View>
           ))}
         </View>
-      );
-    case 'grid':
-      return (
-        <View style={mockStyles.container}>
-          <View style={mockStyles.gridWrap}>
+      </View>
+    );
+  }
+  if (type === 'GRID_SINGLES_ROSTER') {
+    return (
+      <View style={mck.phone}>
+        <View style={[mck.phoneBar, { backgroundColor: accent }]} />
+        <View style={mck.phoneBody}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <View key={i} style={[mockStyles.gridCell, { backgroundColor: i === 1 ? accent : '#E5E5EA' }]} />
+              <View key={i} style={[mck.gridItem, { backgroundColor: i === 1 ? accent : ph }]} />
             ))}
           </View>
         </View>
-      );
-    default:
-      return null;
+      </View>
+    );
   }
+  return null;
 }
 
-const mockStyles = StyleSheet.create({
-  container: { alignItems: 'center', paddingVertical: 16 },
-  bigCard: { width: 140, height: 100, borderRadius: 12, borderWidth: 2, padding: 12, flexDirection: 'row', alignItems: 'center' },
-  avatar: { width: 36, height: 36, borderRadius: 18, marginRight: 10 },
-  lines: { flex: 1 },
-  line: { height: 8, borderRadius: 4, marginBottom: 4 },
-  dots: { flexDirection: 'row', marginTop: 10, gap: 6 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  matchRow: { flexDirection: 'row', gap: 12 },
-  matchCard: { width: 80, height: 90, borderRadius: 10, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  btnMock: { marginTop: 10, paddingHorizontal: 24, paddingVertical: 6, borderRadius: 14 },
-  btnText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
-  channelRow: { width: 160, paddingVertical: 8, paddingHorizontal: 12, borderLeftWidth: 3, marginBottom: 4, backgroundColor: '#F5F5F7', borderRadius: 6 },
-  channelText: { fontSize: 13, fontWeight: '600' },
-  chatRow: { flexDirection: 'row', alignItems: 'center', width: 180, marginBottom: 8 },
-  chatAvatar: { width: 28, height: 28, borderRadius: 14, marginRight: 8 },
-  chatLines: {},
-  gridWrap: { flexDirection: 'row', flexWrap: 'wrap', width: 156, gap: 4 },
-  gridCell: { width: 48, height: 48, borderRadius: 8 },
+const mck = StyleSheet.create({
+  phone: { width: 160, height: 200, borderRadius: 14, borderWidth: 2, borderColor: '#E5E5EA', backgroundColor: '#FFFFFF', alignSelf: 'center' },
+  phoneBar: { height: 6, borderTopLeftRadius: 12, borderTopRightRadius: 12 },
+  phoneBody: { padding: 10, flex: 1 },
+  profileCard: { flexDirection: 'row', alignItems: 'center' },
+  profilePic: { width: 40, height: 40, borderRadius: 20 },
+  bar: { height: 6, borderRadius: 3, marginBottom: 4 },
+  actionBtn: { width: 32, height: 32, borderRadius: 16 },
+  matchThumb: { width: 50, height: 60, borderRadius: 8 },
+  bigBtn: { alignItems: 'center', paddingVertical: 6, borderRadius: 10 },
+  channelItem: { paddingVertical: 6, paddingHorizontal: 8, borderLeftWidth: 3, marginBottom: 4, backgroundColor: '#F5F5F7', borderRadius: 4 },
+  chatItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  chatDot: { width: 24, height: 24, borderRadius: 12 },
+  gridItem: { width: 42, height: 42, borderRadius: 6, margin: 2 },
 });
 
 const PRICING_OPTIONS = [
@@ -180,6 +184,7 @@ export default function SetupWizard() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const draftId = useRef<string | null>(null);
+  const [layoutIdx, setLayoutIdx] = useState(0);
   const [data, setData] = useState<WizardData>({
     name: '',
     slug: '',
@@ -454,7 +459,8 @@ export default function SetupWizard() {
           </View>
         );
 
-      case 4:
+      case 4: {
+        const ac = safeColor(data.accentColor);
         return (
           <View>
             <Text style={styles.stepTitle}>Branding</Text>
@@ -483,7 +489,7 @@ export default function SetupWizard() {
                 }
               }}
             >
-              {data.logoUrl ? (
+              {data.logoUrl && data.logoUrl.length > 0 ? (
                 <Image source={{ uri: data.logoUrl }} style={styles.logoImage} />
               ) : (
                 <View style={styles.logoPlaceholder}>
@@ -491,7 +497,7 @@ export default function SetupWizard() {
                 </View>
               )}
             </TouchableOpacity>
-            {data.logoUrl ? (
+            {data.logoUrl && data.logoUrl.length > 0 ? (
               <TouchableOpacity onPress={() => updateField('logoUrl', '')}>
                 <Text style={styles.logoRemoveText}>Remove Logo</Text>
               </TouchableOpacity>
@@ -508,16 +514,13 @@ export default function SetupWizard() {
                   style={[
                     styles.colorSwatch,
                     { backgroundColor: color },
-                    data.accentColor === color && {
-                      borderColor: '#1C1C1E',
-                      borderWidth: 3,
-                    },
+                    data.accentColor === color && styles.colorSwatchActive,
                   ]}
                   onPress={() => updateField('accentColor', color)}
                 >
-                  {data.accentColor === color && (
-                    <Text style={styles.colorCheck}>✓</Text>
-                  )}
+                  {data.accentColor === color ? (
+                    <Text style={styles.colorCheck}>{'✓'}</Text>
+                  ) : null}
                 </TouchableOpacity>
               ))}
             </View>
@@ -532,8 +535,8 @@ export default function SetupWizard() {
                   style={[
                     styles.optionChip,
                     data.themeMode === mode && {
-                      borderColor: safeColor(data.accentColor),
-                      backgroundColor: safeColor(data.accentColor) + '20',
+                      borderColor: ac,
+                      backgroundColor: '#F5F5F7',
                     },
                   ]}
                   onPress={() => updateField('themeMode', mode)}
@@ -541,7 +544,7 @@ export default function SetupWizard() {
                   <Text
                     style={[
                       styles.optionChipText,
-                      data.themeMode === mode && { color: safeColor(data.accentColor) },
+                      data.themeMode === mode && { color: ac },
                     ]}
                   >
                     {mode}
@@ -561,10 +564,10 @@ export default function SetupWizard() {
               ]}
             >
               <View style={styles.themePreviewHeader}>
-                {data.logoUrl ? (
+                {data.logoUrl && data.logoUrl.length > 0 ? (
                   <Image source={{ uri: data.logoUrl }} style={styles.themePreviewLogo} />
                 ) : (
-                  <View style={[styles.themePreviewLogoPlaceholder, { backgroundColor: safeColor(data.accentColor) }]} />
+                  <View style={[styles.themePreviewLogoPlaceholder, { backgroundColor: ac }]} />
                 )}
                 <Text
                   style={[
@@ -575,7 +578,7 @@ export default function SetupWizard() {
                   {data.name || 'Community Name'}
                 </Text>
               </View>
-              <View style={[styles.themePreviewBar, { backgroundColor: safeColor(data.accentColor) }]} />
+              <View style={[styles.themePreviewBar, { backgroundColor: ac }]} />
               <Text
                 style={[
                   styles.themePreviewDesc,
@@ -587,57 +590,68 @@ export default function SetupWizard() {
             </View>
           </View>
         );
+      }
 
       case 5: {
-        const accent = safeColor(data.accentColor);
+        const ac5 = safeColor(data.accentColor);
+        const current = LAYOUT_OPTIONS[layoutIdx];
+        const isSelected = current && data.layoutType === current.key;
         return (
           <View>
             <Text style={styles.stepTitle}>Choose Your Layout</Text>
             <Text style={styles.stepDesc}>
-              Swipe to preview how members will browse profiles.
+              Browse layouts and tap Select to choose one.
             </Text>
-            <ScrollView
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.carouselContent}
-              decelerationRate="fast"
-              snapToInterval={CARD_WIDTH + 16}
-            >
-              {LAYOUT_OPTIONS.map((opt) => {
-                const selected = data.layoutType === opt.key;
-                return (
-                  <TouchableOpacity
-                    key={opt.key}
-                    activeOpacity={0.85}
-                    style={[
-                      styles.carouselCard,
-                      { width: CARD_WIDTH },
-                      selected && { borderColor: accent },
-                    ]}
-                    onPress={() => updateField('layoutType', opt.key)}
-                  >
-                    <LayoutMockup icon={opt.icon} accent={accent} />
-                    <Text style={[styles.carouselTitle, selected && { color: accent }]}>
-                      {opt.label}
-                    </Text>
-                    <Text style={styles.carouselDesc}>{opt.desc}</Text>
-                    {selected && (
-                      <View style={[styles.carouselBadge, { backgroundColor: accent }]}>
-                        <Text style={styles.carouselBadgeText}>Selected</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
+
+            {current ? (
+              <View style={[styles.carouselCard, isSelected && { borderColor: ac5 }]}>
+                <LayoutMockup type={current.key} accent={ac5} />
+                <Text style={[styles.carouselTitle, isSelected && { color: ac5 }]}>
+                  {current.label}
+                </Text>
+                <Text style={styles.carouselDesc}>{current.desc}</Text>
+                <TouchableOpacity
+                  style={[styles.carouselSelectBtn, isSelected && { backgroundColor: ac5 }]}
+                  onPress={() => updateField('layoutType', current.key)}
+                >
+                  <Text style={[styles.carouselSelectText, isSelected && { color: '#FFFFFF' }]}>
+                    {isSelected ? 'Selected' : 'Select'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+
+            {/* Navigation arrows */}
+            <View style={styles.carouselNav}>
+              <TouchableOpacity
+                style={[styles.carouselArrow, layoutIdx === 0 && { opacity: 0.3 }]}
+                onPress={() => { if (layoutIdx > 0) setLayoutIdx(layoutIdx - 1); }}
+                disabled={layoutIdx === 0}
+              >
+                <Text style={styles.carouselArrowText}>{'<'}</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.carouselCounter}>
+                {layoutIdx + 1} / {LAYOUT_OPTIONS.length}
+              </Text>
+
+              <TouchableOpacity
+                style={[styles.carouselArrow, layoutIdx === LAYOUT_OPTIONS.length - 1 && { opacity: 0.3 }]}
+                onPress={() => { if (layoutIdx < LAYOUT_OPTIONS.length - 1) setLayoutIdx(layoutIdx + 1); }}
+                disabled={layoutIdx === LAYOUT_OPTIONS.length - 1}
+              >
+                <Text style={styles.carouselArrowText}>{'>'}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Dots */}
             <View style={styles.carouselDots}>
-              {LAYOUT_OPTIONS.map((opt) => (
+              {LAYOUT_OPTIONS.map((opt, i) => (
                 <View
                   key={opt.key}
                   style={[
                     styles.carouselDot,
-                    data.layoutType === opt.key && { backgroundColor: accent },
+                    i === layoutIdx && { backgroundColor: ac5 },
                   ]}
                 />
               ))}
@@ -994,13 +1008,14 @@ const styles = StyleSheet.create({
     borderTopColor: '#E5E5EA',
   },
   spacer: { flex: 1 },
-  optionRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+  optionRow: { flexDirection: 'row', marginBottom: 20 },
   optionChip: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E5EA',
+    marginRight: 12,
   },
   optionChipText: { color: '#6B6B73', fontSize: 14, fontWeight: '500' },
   layoutCard: {
@@ -1012,22 +1027,45 @@ const styles = StyleSheet.create({
   },
   layoutTitle: { color: '#1C1C1E', fontSize: 16, fontWeight: '600' },
   layoutDesc: { color: '#6B6B73', fontSize: 13, marginTop: 4 },
-  carouselContent: { paddingHorizontal: 8, paddingBottom: 8 },
   carouselCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     borderWidth: 2,
     borderColor: '#E5E5EA',
     padding: 20,
-    marginHorizontal: 8,
     alignItems: 'center',
+    marginTop: 8,
   },
-  carouselTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginTop: 8 },
+  carouselTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginTop: 12 },
   carouselDesc: { fontSize: 13, color: '#6B6B73', textAlign: 'center', marginTop: 4, lineHeight: 18 },
-  carouselBadge: { marginTop: 12, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 14 },
-  carouselBadgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
-  carouselDots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 12 },
-  carouselDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E5E5EA' },
+  carouselSelectBtn: {
+    marginTop: 14,
+    paddingHorizontal: 28,
+    paddingVertical: 8,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+    backgroundColor: '#F5F5F7',
+  },
+  carouselSelectText: { fontSize: 14, fontWeight: '700', color: '#1C1C1E' },
+  carouselNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  carouselArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  carouselArrowText: { fontSize: 20, fontWeight: '700', color: '#1C1C1E' },
+  carouselCounter: { fontSize: 14, color: '#6B6B73', fontWeight: '600', marginLeft: 20, marginRight: 20 },
+  carouselDots: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
+  carouselDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E5E5EA', marginHorizontal: 3 },
   listRow: { flexDirection: 'row', alignItems: 'flex-start' },
   listInputWrap: { flex: 1 },
   removeBtn: {
@@ -1078,10 +1116,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 2,
     borderColor: '#E5E5EA',
-    overflow: 'hidden',
     marginBottom: 8,
   },
-  logoImage: { width: 100, height: 100 },
+  logoImage: { width: 96, height: 96, borderRadius: 14 },
   logoPlaceholder: {
     flex: 1,
     alignItems: 'center',
@@ -1093,7 +1130,6 @@ const styles = StyleSheet.create({
   colorGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
     marginBottom: 12,
   },
   colorSwatch: {
@@ -1104,6 +1140,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#F5F5F7',
+    margin: 4,
+  },
+  colorSwatchActive: {
+    borderColor: '#1C1C1E',
+    borderWidth: 3,
   },
   colorCheck: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
   themePreview: {

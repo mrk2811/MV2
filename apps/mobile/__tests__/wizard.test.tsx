@@ -221,8 +221,8 @@ describe('Admin Setup Wizard', () => {
     expect(getByText('DARK')).toBeTruthy();
   });
 
-  it('should render step 5 (layout) as horizontal carousel with visual mockups', () => {
-    const { getByText, queryByText } = render(<SetupWizard />);
+  it('should render step 5 (layout) with card carousel and visual mockup', () => {
+    const { getByText } = render(<SetupWizard />);
 
     // Navigate to step 5 (Layout)
     fireEvent.press(getByText('Next')); // step 2
@@ -232,17 +232,17 @@ describe('Admin Setup Wizard', () => {
 
     // Verify step 5 renders without crashing
     expect(getByText('Choose Your Layout')).toBeTruthy();
-    expect(getByText('Swipe to preview how members will browse profiles.')).toBeTruthy();
+    expect(getByText('Browse layouts and tap Select to choose one.')).toBeTruthy();
 
-    // Layout options should render as carousel cards with visual mockups
+    // First layout should be shown by default (Prompt-First Feed)
     expect(getByText('Prompt-First Feed')).toBeTruthy();
-    expect(getByText('Grid Singles Roster')).toBeTruthy();
+    expect(getByText('1 / 5')).toBeTruthy();
 
-    // Default selection should show "Selected" badge
+    // Default layout is selected so button shows "Selected"
     expect(getByText('Selected')).toBeTruthy();
   });
 
-  it('should switch layout selection on step 5 without crashing', () => {
+  it('should navigate between layouts with arrows on step 5', () => {
     const { getByText } = render(<SetupWizard />);
 
     // Navigate to step 5
@@ -251,11 +251,47 @@ describe('Admin Setup Wizard', () => {
     fireEvent.press(getByText('Next'));
     fireEvent.press(getByText('Next'));
 
-    // Tap a different layout
-    fireEvent.press(getByText('Grid Singles Roster'));
-    // Should still render without crash
+    // Tap right arrow to go to next layout
+    fireEvent.press(getByText('>'));
+    expect(getByText('Curated Match Queue')).toBeTruthy();
+    expect(getByText('2 / 5')).toBeTruthy();
+    // This one is not selected, so button says "Select"
+    expect(getByText('Select')).toBeTruthy();
+
+    // Select it
+    fireEvent.press(getByText('Select'));
     expect(getByText('Selected')).toBeTruthy();
+
+    // Navigate back
+    fireEvent.press(getByText('<'));
+    expect(getByText('Prompt-First Feed')).toBeTruthy();
+    expect(getByText('1 / 5')).toBeTruthy();
+  });
+
+  it('should not crash when navigating back and forth through steps 4-5', () => {
+    const { getByText } = render(<SetupWizard />);
+
+    // Navigate to step 4
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('Next'));
+    expect(getByText('Branding')).toBeTruthy();
+
+    // Go to step 5
+    fireEvent.press(getByText('Next'));
     expect(getByText('Choose Your Layout')).toBeTruthy();
+
+    // Go back to step 4
+    fireEvent.press(getByText('Back'));
+    expect(getByText('Branding')).toBeTruthy();
+
+    // Go forward to step 5 again (this was crashing before)
+    fireEvent.press(getByText('Next'));
+    expect(getByText('Choose Your Layout')).toBeTruthy();
+
+    // Go back to step 4 one more time
+    fireEvent.press(getByText('Back'));
+    expect(getByText('Branding')).toBeTruthy();
   });
 
   it('should navigate between steps with Next/Back buttons', () => {
