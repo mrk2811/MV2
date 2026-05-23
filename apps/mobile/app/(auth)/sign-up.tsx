@@ -52,19 +52,29 @@ export default function SignUpScreen() {
     setLoading(true);
     try {
       const result = await signUp.attemptPhoneNumberVerification({ code });
+      const sessionId = result.createdSessionId ?? signUp?.createdSessionId;
 
-      if (result.status === 'complete' && result.createdSessionId) {
-        await setActive({ session: result.createdSessionId });
-        router.replace('/');
+      if (result.status === 'complete' && sessionId) {
+        await setActive({ session: sessionId });
+      } else if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId as string });
+      } else {
+        Alert.alert('Verification', `Unexpected status: ${result.status}. Please try again.`);
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Invalid verification code';
+      const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
+      const firstErr = clerkErr.errors?.[0];
+      let message = 'Invalid verification code';
+      if (firstErr?.longMessage || firstErr?.message) {
+        message = firstErr.longMessage || firstErr.message || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, code, signUp, setActive, router]);
+  }, [isLoaded, code, signUp, setActive]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
