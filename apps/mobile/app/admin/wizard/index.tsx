@@ -550,9 +550,7 @@ export default function SetupWizard() {
         );
       }
 
-      case 5: {
-        const current = LAYOUT_OPTIONS[layoutIdx];
-        const isSelected = current && data.layoutType === current.key;
+      case 5:
         return (
           <View>
             <Text style={styles.stepTitle}>Choose Your Layout</Text>
@@ -560,23 +558,42 @@ export default function SetupWizard() {
               Browse layouts and tap Select to choose one.
             </Text>
 
-            {current ? (
-              <View style={isSelected ? styles.carouselCardSelected : styles.carouselCard}>
-                <LayoutMockup type={current.key} />
-                <Text style={isSelected ? styles.carouselTitleSelected : styles.carouselTitle}>
-                  {current.label}
-                </Text>
-                <Text style={styles.carouselDesc}>{current.desc}</Text>
-                <TouchableOpacity
-                  style={isSelected ? styles.carouselSelectBtnActive : styles.carouselSelectBtn}
-                  onPress={() => updateField('layoutType', current.key)}
+            {/* All 5 cards always in tree; display toggles visibility */}
+            {LAYOUT_OPTIONS.map((opt, i) => {
+              const sel = data.layoutType === opt.key;
+              const visible = i === layoutIdx;
+              return (
+                <View
+                  key={opt.key}
+                  style={visible
+                    ? (sel ? styles.carouselCardSelected : styles.carouselCard)
+                    : styles.carouselCardHidden}
                 >
-                  <Text style={isSelected ? styles.carouselSelectTextActive : styles.carouselSelectText}>
-                    {isSelected ? 'Selected' : 'Select'}
+                  <View style={mck.card}>
+                    <Text style={mck.icon}>{MOCKUP_DATA[opt.key]?.icon ?? ''}</Text>
+                    <Text style={mck.title}>{MOCKUP_DATA[opt.key]?.title ?? ''}</Text>
+                    <View style={mck.divider} />
+                    <Text style={mck.line}>{MOCKUP_DATA[opt.key]?.line1 ?? ''}</Text>
+                    <Text style={mck.line}>{MOCKUP_DATA[opt.key]?.line2 ?? ''}</Text>
+                    <Text style={mck.line}>{MOCKUP_DATA[opt.key]?.line3 ?? ''}</Text>
+                    <View style={mck.divider} />
+                    <Text style={mck.ref}>{MOCKUP_DATA[opt.key]?.ref ?? ''}</Text>
+                  </View>
+                  <Text style={sel ? styles.carouselTitleSelected : styles.carouselTitle}>
+                    {opt.label}
                   </Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
+                  <Text style={styles.carouselDesc}>{opt.desc}</Text>
+                  <TouchableOpacity
+                    style={sel ? styles.carouselSelectBtnActive : styles.carouselSelectBtn}
+                    onPress={() => updateField('layoutType', opt.key)}
+                  >
+                    <Text style={sel ? styles.carouselSelectTextActive : styles.carouselSelectText}>
+                      {sel ? 'Selected' : 'Select'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
 
             {/* Navigation arrows */}
             <View style={styles.carouselNav}>
@@ -612,7 +629,6 @@ export default function SetupWizard() {
             </View>
           </View>
         );
-      }
 
       case 6:
         return (
@@ -1006,6 +1022,9 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     marginTop: 8,
+  },
+  carouselCardHidden: {
+    display: 'none',
   },
   carouselTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginTop: 12 },
   carouselTitleSelected: { fontSize: 18, fontWeight: '700', color: '#E63946', marginTop: 12 },
