@@ -2,10 +2,23 @@ import { useEffect, Component, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { ClerkProvider, ClerkLoaded, useAuth } from '@clerk/clerk-expo';
+import * as Sentry from '@sentry/react-native';
 import { tokenCache } from '../src/auth/token-cache';
 import { setTokenProvider, api } from '../src/api/client';
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
+const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN || '';
+
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    tracesSampleRate: 1.0,
+    enableNativeFramesTracking: true,
+    enableAutoSessionTracking: true,
+    attachStacktrace: true,
+    debug: __DEV__,
+  });
+}
 
 function TokenSync() {
   const { getToken, isSignedIn } = useAuth();
@@ -56,6 +69,9 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   state = { hasError: false };
   static getDerivedStateFromError() {
     return { hasError: true };
+  }
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
   }
   componentDidMount() {
     this.sub = AppState.addEventListener('change', this.onAppState);
