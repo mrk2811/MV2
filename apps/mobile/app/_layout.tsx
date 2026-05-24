@@ -2,28 +2,24 @@ import { useEffect, Component, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { ClerkProvider, ClerkLoaded, useAuth } from '@clerk/clerk-expo';
-import * as Sentry from '@sentry/react-native';
 import { tokenCache } from '../src/auth/token-cache';
 import { setTokenProvider, api } from '../src/api/client';
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN || '';
 
-if (SENTRY_DSN) {
-  Sentry.init({
+// Sentry is completely disabled in dev (Expo Go). Just importing @sentry/react-native
+// triggers background native timers that crash the app every ~60s in Expo Go.
+// Only require + initialize in production EAS builds.
+let Sentry: { init: (opts: Record<string, unknown>) => void; captureException: (e: unknown, ctx?: unknown) => void } | null = null;
+if (SENTRY_DSN && !__DEV__) {
+  Sentry = require('@sentry/react-native');
+  Sentry!.init({
     dsn: SENTRY_DSN,
-    tracesSampleRate: 0,
-    enableNativeFramesTracking: false,
-    enableAutoSessionTracking: false,
+    tracesSampleRate: 0.2,
+    enableNativeFramesTracking: true,
+    enableAutoSessionTracking: true,
     attachStacktrace: true,
-    debug: __DEV__,
-    integrations: (defaults) =>
-      defaults.filter(
-        (i) =>
-          i.name !== 'StallTracking' &&
-          i.name !== 'ReactNativeTracing' &&
-          i.name !== 'TimeToDisplay',
-      ),
   });
 }
 
@@ -78,7 +74,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     return { hasError: true };
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
+    Sentry?.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
   }
   componentDidMount() {
     this.sub = AppState.addEventListener('change', this.onAppState);
