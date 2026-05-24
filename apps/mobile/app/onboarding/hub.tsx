@@ -72,7 +72,7 @@ export default function MomentumHub() {
       <View style={styles.header}>
         <Text style={styles.logo}>MV2</Text>
         <Text style={styles.title}>Momentum Hub</Text>
-        <Text style={styles.subtitle}>Discover communities near you</Text>
+        <Text style={styles.subtitle}>Discover apps near you</Text>
       </View>
       <ScrollView
         style={styles.list}
@@ -87,9 +87,9 @@ export default function MomentumHub() {
       >
         {communities.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>No Communities Yet</Text>
+            <Text style={styles.emptyTitle}>No Apps Yet</Text>
             <Text style={styles.emptyDesc}>
-              Communities will appear here as admins create them.
+              Apps will appear here as admins create them.
             </Text>
           </View>
         ) : (

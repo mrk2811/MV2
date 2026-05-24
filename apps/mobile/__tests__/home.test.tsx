@@ -83,15 +83,15 @@ describe('Home Screen', () => {
     expect(getByText('Sign Out')).toBeTruthy();
   });
 
-  it('should show Discover Communities and Create a Community buttons', () => {
+  it('should show Discover Apps and Create Your App buttons', () => {
     const { getByText } = render(<HomeScreen />);
-    expect(getByText('Discover Communities')).toBeTruthy();
-    expect(getByText('Create a Community')).toBeTruthy();
+    expect(getByText('Discover Apps')).toBeTruthy();
+    expect(getByText('Create Your App')).toBeTruthy();
   });
 
   it('should show MV2 logo and tagline', () => {
     const { getByText } = render(<HomeScreen />);
     expect(getByText('MV2')).toBeTruthy();
-    expect(getByText('Your communities. Your dating pools.')).toBeTruthy();
+    expect(getByText('Your apps. Your dating pools.')).toBeTruthy();
   });
 });

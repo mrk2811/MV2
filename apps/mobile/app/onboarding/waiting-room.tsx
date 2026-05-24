@@ -100,13 +100,13 @@ export default function WaitingRoom() {
         </Text>
 
         <Text style={styles.communityName}>
-          {state?.tenant?.name || 'Community'}
+          {state?.tenant?.name || 'App'}
         </Text>
 
         <Text style={styles.desc}>
           {isRejected
-            ? 'Unfortunately your application was not approved. You can contact the community admin for more info.'
-            : 'Your application has been submitted! The community admin will review it soon. Pull down to refresh.'}
+            ? 'Unfortunately your application was not approved. You can contact the app admin for more info.'
+            : 'Your application has been submitted! The app admin will review it soon. Pull down to refresh.'}
         </Text>
 
         {state?.application?.createdAt && (
@@ -121,13 +121,13 @@ export default function WaitingRoom() {
             styles.statusBadge,
             isRejected
               ? styles.rejectedBadge
-              : { backgroundColor: accent + '20' },
+              : styles.pendingBadge,
           ]}
         >
           <Text
             style={[
               styles.statusText,
-              isRejected ? styles.rejectedText : { color: accent },
+              isRejected ? styles.rejectedText : styles.pendingText,
             ]}
           >
             {status}
@@ -188,7 +188,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   rejectedBadge: { backgroundColor: '#E6394620' },
+  pendingBadge: { backgroundColor: '#E6394620' },
   statusText: { fontSize: 14, fontWeight: '600' },
   rejectedText: { color: '#E63946' },
+  pendingText: { color: '#E63946' },
   footer: { padding: 20, borderTopWidth: 1, borderTopColor: '#E5E5EA' },
 });

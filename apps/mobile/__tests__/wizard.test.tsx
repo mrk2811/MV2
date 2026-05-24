@@ -94,7 +94,7 @@ describe('InputField Component', () => {
     const { getByText } = render(
       <InputField
         label="Description"
-        hint="Brief description of your community"
+        hint="Brief description of your app"
         placeholder="Enter description"
         value=""
         onChangeText={() => {}}
@@ -102,7 +102,7 @@ describe('InputField Component', () => {
     );
 
     expect(getByText('Description')).toBeTruthy();
-    expect(getByText('Brief description of your community')).toBeTruthy();
+    expect(getByText('Brief description of your app')).toBeTruthy();
   });
 
   it('should display error styling and message', () => {

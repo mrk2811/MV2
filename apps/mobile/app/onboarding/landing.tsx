@@ -38,7 +38,7 @@ export default function LandingPage() {
     api
       .get<TenantDetail>(`/tenants/${slug}`)
       .then(setTenant)
-      .catch(() => setError('Community not found'))
+      .catch(() => setError('App not found'))
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -53,7 +53,7 @@ export default function LandingPage() {
   if (error || !tenant) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>{error || 'Community not found'}</Text>
+        <Text style={styles.errorText}>{error || 'App not found'}</Text>
         <WizardButton
           title="Go Back"
           variant="secondary"
@@ -96,7 +96,7 @@ export default function LandingPage() {
 
         {rules.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Community Rules</Text>
+            <Text style={styles.sectionTitle}>App Rules</Text>
             {rules.map((rule, i) => (
               <View key={i} style={styles.ruleRow}>
                 <Text style={[styles.ruleBullet, { color: accent }]}>

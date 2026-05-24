@@ -61,7 +61,7 @@ export default function ProfileSetup() {
         prompts,
       });
 
-      Alert.alert('Profile Created!', 'You are now a member of this community.', [
+      Alert.alert('Profile Created!', 'You are now a member of this app.', [
         { text: 'OK', onPress: () => router.replace('/') },
       ]);
     } catch (err) {
@@ -82,7 +82,7 @@ export default function ProfileSetup() {
       >
         <Text style={styles.title}>Set Up Your Profile</Text>
         <Text style={styles.subtitle}>
-          Create your local profile for this community. This is how other members
+          Create your local profile for this app. This is how other members
           will see you.
         </Text>
 

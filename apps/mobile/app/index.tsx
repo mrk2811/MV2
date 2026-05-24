@@ -24,18 +24,18 @@ export default function HomeScreen() {
 
       <View style={styles.hero}>
         <Text style={styles.logo}>MV2</Text>
-        <Text style={styles.tagline}>Your communities. Your dating pools.</Text>
+        <Text style={styles.tagline}>Your apps. Your dating pools.</Text>
       </View>
 
       <View style={styles.actions}>
         <WizardButton
-          title="Discover Communities"
+          title="Discover Apps"
           accentColor="#E63946"
           onPress={() => router.push('/onboarding/hub')}
         />
         <View style={styles.gap} />
         <WizardButton
-          title="Create a Community"
+          title="Create Your App"
           variant="secondary"
           onPress={() => router.push('/admin/wizard')}
         />
