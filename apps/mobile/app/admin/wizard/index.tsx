@@ -919,23 +919,25 @@ export default function SetupWizard() {
           />
         </View>
         <View style={styles.spacer} />
-        {/* Both buttons always in tree — hiddenSafe keeps in tree but out of layout flow */}
-        <View style={step < TOTAL_STEPS ? styles.visible : styles.hiddenSafe}>
-          <WizardButton
-            title="Next"
-            accentColor={safeColor(data.accentColor)}
-            onPress={nextStep}
-            disabled={step >= TOTAL_STEPS}
-          />
-        </View>
-        <View style={step >= TOTAL_STEPS ? styles.visible : styles.hiddenSafe}>
-          <WizardButton
-            title="Launch Your App"
-            accentColor={safeColor(data.accentColor)}
-            onPress={handleFinalize}
-            loading={loading}
-            disabled={step < TOTAL_STEPS}
-          />
+        {/* Overlay slot: both buttons always absolute, only opacity toggles (iOS Fabric safe) */}
+        <View style={styles.footerBtnSlot}>
+          <View style={[styles.footerBtnLayer, step < TOTAL_STEPS ? styles.layerVisible : styles.layerHidden]}>
+            <WizardButton
+              title="Next"
+              accentColor={safeColor(data.accentColor)}
+              onPress={nextStep}
+              disabled={step >= TOTAL_STEPS}
+            />
+          </View>
+          <View style={[styles.footerBtnLayer, step >= TOTAL_STEPS ? styles.layerVisible : styles.layerHidden]}>
+            <WizardButton
+              title="Launch Your App"
+              accentColor={safeColor(data.accentColor)}
+              onPress={handleFinalize}
+              loading={loading}
+              disabled={step < TOTAL_STEPS}
+            />
+          </View>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -1227,4 +1229,8 @@ const styles = StyleSheet.create({
   hiddenSafe: { opacity: 0, position: 'absolute' as const, width: 0, height: 0, overflow: 'hidden' as const },
   logoPickerInner: { flex: 1 },
   colorCheckHidden: { fontSize: 18, fontWeight: '700', color: 'transparent' },
+  footerBtnSlot: { position: 'relative' as const, minWidth: 140, height: 48 },
+  footerBtnLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 },
+  layerVisible: { opacity: 1 },
+  layerHidden: { opacity: 0 },
 });
