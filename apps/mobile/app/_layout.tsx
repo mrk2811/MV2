@@ -12,11 +12,18 @@ const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN || '';
 if (SENTRY_DSN) {
   Sentry.init({
     dsn: SENTRY_DSN,
-    tracesSampleRate: 1.0,
-    enableNativeFramesTracking: true,
-    enableAutoSessionTracking: true,
+    tracesSampleRate: 0,
+    enableNativeFramesTracking: false,
+    enableAutoSessionTracking: false,
     attachStacktrace: true,
     debug: __DEV__,
+    integrations: (defaults) =>
+      defaults.filter(
+        (i) =>
+          i.name !== 'StallTracking' &&
+          i.name !== 'ReactNativeTracing' &&
+          i.name !== 'TimeToDisplay',
+      ),
   });
 }
 
