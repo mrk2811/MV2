@@ -4,7 +4,7 @@
  * Covers wizard issues discovered during development:
  * - Description field does NOT use numberOfLines (was causing crash)
  * - Wizard is wrapped in KeyboardAvoidingView (buttons visible above keyboard)
- * - URL slug auto-populates from community name
+ * - URL slug auto-populates from app name
  * - Next/Back buttons render in footer
  * - Multiline description input uses minHeight style instead of numberOfLines
  * - Accent color validation prevents crash when color is empty/partial (safeColor)
@@ -129,9 +129,9 @@ describe('Admin Setup Wizard', () => {
     SetupWizard = require('../app/admin/wizard/index').default;
   });
 
-  it('should render step 1 with community name, slug, and description fields', () => {
+  it('should render step 1 with app name, slug, and description fields', () => {
     const { getByText } = render(<SetupWizard />);
-    expect(getByText('Name Your Community')).toBeTruthy();
+    expect(getByText('Name Your App')).toBeTruthy();
   });
 
   it('should show Next button on step 1', () => {
@@ -139,14 +139,14 @@ describe('Admin Setup Wizard', () => {
     expect(getByText('Next')).toBeTruthy();
   });
 
-  it('should auto-populate slug from community name', () => {
+  it('should auto-populate slug from app name', () => {
     const { getByText, UNSAFE_getAllByType } = render(<SetupWizard />);
-    expect(getByText('Name Your Community')).toBeTruthy();
+    expect(getByText('Name Your App')).toBeTruthy();
 
-    // The InputField for Community Name has an onChangeText that also sets slug
+    // The InputField for App Name has an onChangeText that also sets slug
     // We verify this behavior by checking the autoSlug logic
     // Since we can't easily access state, we verify the fields exist
-    expect(getByText('Community Name')).toBeTruthy();
+    expect(getByText('App Name')).toBeTruthy();
     expect(getByText('URL Slug')).toBeTruthy();
   });
 
@@ -170,7 +170,7 @@ describe('Admin Setup Wizard', () => {
 
     // Logo picker should show "+ Choose Logo" placeholder (no URL input)
     expect(getByText('+ Choose Logo')).toBeTruthy();
-    expect(getByText('Community Logo')).toBeTruthy();
+    expect(getByText('App Logo')).toBeTruthy();
 
     // Color palette should render swatches
     expect(getByText('Accent Color')).toBeTruthy();
@@ -183,8 +183,8 @@ describe('Admin Setup Wizard', () => {
     expect(getByText('LIGHT')).toBeTruthy();
 
     // Live theme preview should show
-    expect(getByText('Community Name')).toBeTruthy();
-    expect(getByText('Your community description will appear here')).toBeTruthy();
+    expect(getByText('App Name')).toBeTruthy();
+    expect(getByText('Your app description will appear here')).toBeTruthy();
   });
 
   it('should select a color from the palette on step 4', () => {
@@ -308,6 +308,6 @@ describe('Admin Setup Wizard', () => {
 
     // Go back to step 1
     fireEvent.press(getByText('Back'));
-    expect(getByText('Name Your Community')).toBeTruthy();
+    expect(getByText('Name Your App')).toBeTruthy();
   });
 });

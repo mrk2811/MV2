@@ -1,4 +1,4 @@
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet, ActivityIndicator } from 'react-native';
 
 interface WizardButtonProps {
   title: string;
@@ -8,6 +8,20 @@ interface WizardButtonProps {
   loading?: boolean;
   accentColor?: string;
 }
+
+// Pre-built accent background styles (avoids inline style objects — iOS Fabric safe)
+const ACCENT_BG: Record<string, ReturnType<typeof StyleSheet.flatten>> = {};
+const ACCENT_TEXT: Record<string, ReturnType<typeof StyleSheet.flatten>> = {};
+const COMMON_ACCENTS = [
+  '#E63946', '#FF6B6B', '#FF8C42', '#F4A261',
+  '#E9C46A', '#2A9D8F', '#06D6A0', '#4ECDC4',
+  '#3A86FF', '#6C63FF', '#8338EC', '#FF006E',
+  '#1D3557', '#457B9D', '#A8DADC', '#264653',
+];
+COMMON_ACCENTS.forEach((c) => {
+  ACCENT_BG[c] = StyleSheet.create({ s: { backgroundColor: c } }).s;
+  ACCENT_TEXT[c] = StyleSheet.create({ s: { color: c } }).s;
+});
 
 export function WizardButton({
   title,
@@ -24,29 +38,31 @@ export function WizardButton({
     <TouchableOpacity
       style={[
         styles.button,
-        isPrimary && { backgroundColor: accentColor },
-        !isPrimary && !isGhost && styles.secondary,
-        isGhost && styles.ghost,
-        disabled && styles.disabled,
+        isPrimary ? (ACCENT_BG[accentColor] ?? styles.fallbackBg) : undefined,
+        !isPrimary && !isGhost ? styles.secondary : undefined,
+        isGhost ? styles.ghost : undefined,
+        disabled ? styles.disabled : undefined,
       ]}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.7}
     >
-      {loading ? (
+      {/* Both always in tree — only display toggles. Prevents iOS Fabric tree mutation crash. */}
+      <View style={loading ? styles.visible : styles.hidden}>
         <ActivityIndicator color={isPrimary ? '#FFF' : accentColor} />
-      ) : (
+      </View>
+      <View style={loading ? styles.hidden : styles.visible}>
         <Text
           style={[
             styles.text,
-            isPrimary && styles.primaryText,
-            !isPrimary && !isGhost && { color: accentColor },
-            isGhost && styles.ghostText,
+            isPrimary ? styles.primaryText : undefined,
+            !isPrimary && !isGhost ? (ACCENT_TEXT[accentColor] ?? styles.fallbackText) : undefined,
+            isGhost ? styles.ghostText : undefined,
           ]}
         >
           {title}
         </Text>
-      )}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -69,4 +85,8 @@ const styles = StyleSheet.create({
   text: { fontSize: 16, fontWeight: '600' },
   primaryText: { color: '#FFFFFF' },
   ghostText: { color: '#6B6B73' },
+  fallbackBg: { backgroundColor: '#E63946' },
+  fallbackText: { color: '#E63946' },
+  visible: {},
+  hidden: { display: 'none' },
 });

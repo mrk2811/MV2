@@ -82,7 +82,7 @@ const MOCKUP_DATA: Record<string, { icon: string; title: string; line1: string; 
   GRID_SINGLES_ROSTER: {
     icon: '👥',
     title: 'Member Grid',
-    line1: 'Photo grid of all community members',
+    line1: 'Photo grid of all app members',
     line2: 'Tap any profile to view details',
     line3: 'Filter & search by tags or location',
     ref: 'Similar to Instagram / Meetup',
@@ -276,7 +276,7 @@ export default function SetupWizard() {
 
   const handleFinalize = async () => {
     if (!data.name || !data.slug) {
-      Alert.alert('Missing Info', 'Community name and slug are required.');
+      Alert.alert('Missing Info', 'App name and slug are required.');
       return;
     }
     const resolvedDraftId = await ensureDraft();
@@ -324,12 +324,12 @@ export default function SetupWizard() {
         matchmakerEnabled: data.matchmakerEnabled,
       });
 
-      Alert.alert('Community Created!', `${data.name} is now live.`, [
+      Alert.alert('App Created!', `${data.name} is now live.`, [
         { text: 'OK', onPress: () => router.replace('/') },
       ]);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to create community';
+        err instanceof Error ? err.message : 'Failed to create app';
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
@@ -365,13 +365,13 @@ export default function SetupWizard() {
       case 1:
         return (
           <View>
-            <Text style={styles.stepTitle}>Name Your Community</Text>
+            <Text style={styles.stepTitle}>Name Your App</Text>
             <Text style={styles.stepDesc}>
-              Choose a name that represents your group. This is what members will
+              Choose a name for your app. This is what members will
               see.
             </Text>
             <InputField
-              label="Community Name"
+              label="App Name"
               placeholder="e.g. Brooklyn Run Club Singles"
               value={data.name}
               onChangeText={(text) => {
@@ -389,8 +389,8 @@ export default function SetupWizard() {
             />
             <InputField
               label="Description"
-              hint="Brief description of your community"
-              placeholder="A singles community for Brooklyn runners..."
+              hint="Brief description of your app"
+              placeholder="A singles app for Brooklyn runners..."
               value={data.description}
               onChangeText={(text) => updateField('description', text)}
               multiline
@@ -421,7 +421,7 @@ export default function SetupWizard() {
           <View>
             <Text style={styles.stepTitle}>Geographic Anchor</Text>
             <Text style={styles.stepDesc}>
-              Where is your community based? This helps with local discovery.
+              Where is your app based? This helps with local discovery.
             </Text>
             <InputField
               label="Location"
@@ -447,11 +447,11 @@ export default function SetupWizard() {
           <View>
             <Text style={styles.stepTitle}>Branding</Text>
             <Text style={styles.stepDesc}>
-              Customize how your community looks. Pick a logo, colors, and theme.
+              Customize how your app looks. Pick a logo, colors, and theme.
             </Text>
 
             {/* Logo Picker */}
-            <Text style={styles.fieldLabel}>Community Logo</Text>
+            <Text style={styles.fieldLabel}>App Logo</Text>
             <Text style={styles.hint}>Tap to select from your photo library</Text>
             <TouchableOpacity
               style={styles.logoPicker}
@@ -487,7 +487,7 @@ export default function SetupWizard() {
 
             {/* Color Palette */}
             <Text style={styles.fieldLabelSpaced}>Accent Color</Text>
-            <Text style={styles.hint}>Pick a color for your community brand</Text>
+            <Text style={styles.hint}>Pick a color for your app brand</Text>
             <View style={styles.colorGrid}>
               {COLOR_PALETTE.map((color) => (
                 <TouchableOpacity
@@ -509,7 +509,7 @@ export default function SetupWizard() {
 
             {/* Theme Mode */}
             <Text style={styles.fieldLabelSpaced}>Theme Mode</Text>
-            <Text style={styles.hint}>Choose light or dark mode for your community</Text>
+            <Text style={styles.hint}>Choose light or dark mode for your app</Text>
             <View style={styles.optionRow}>
               <TouchableOpacity
                 style={data.themeMode === 'DARK' ? styles.optionChipActive : styles.optionChip}
@@ -538,12 +538,12 @@ export default function SetupWizard() {
                   <View style={styles.themePreviewLogoFallback} />
                 )}
                 <Text style={isDark ? styles.themePreviewNameDark : styles.themePreviewNameLight}>
-                  {data.name || 'Community Name'}
+                  {data.name || 'App Name'}
                 </Text>
               </View>
               <View style={styles.themePreviewBar} />
               <Text style={isDark ? styles.themePreviewDescDark : styles.themePreviewDescLight}>
-                {data.description || 'Your community description will appear here'}
+                {data.description || 'Your app description will appear here'}
               </Text>
             </View>
           </View>
@@ -673,7 +673,7 @@ export default function SetupWizard() {
       case 7:
         return (
           <View>
-            <Text style={styles.stepTitle}>Community Rules</Text>
+            <Text style={styles.stepTitle}>App Rules</Text>
             <Text style={styles.stepDesc}>
               Set ground rules for your members. These will be shown during
               onboarding.
@@ -769,12 +769,12 @@ export default function SetupWizard() {
           <View>
             <Text style={styles.stepTitle}>Welcome & Extras</Text>
             <Text style={styles.stepDesc}>
-              Set a welcome message and optional features for your community.
+              Set a welcome message and optional features for your app.
             </Text>
             <InputField
               label="Welcome Message"
               hint="Shown to new members after they're approved"
-              placeholder="Welcome to our community! Here are some tips..."
+              placeholder="Welcome to our app! Here are some tips..."
               value={data.welcomeMessage}
               onChangeText={(text) => updateField('welcomeMessage', text)}
               multiline
@@ -835,7 +835,7 @@ export default function SetupWizard() {
           <View>
             <Text style={styles.stepTitle}>Review & Launch</Text>
             <Text style={styles.stepDesc}>
-              Everything looks good? Let's launch your community!
+              Everything looks good? Let's launch your app!
             </Text>
             <View style={styles.reviewSection}>
               <ReviewRow label="Name" value={data.name} />
@@ -913,7 +913,7 @@ export default function SetupWizard() {
           />
         ) : (
           <WizardButton
-            title="Launch Community"
+            title="Launch Your App"
             accentColor={safeColor(data.accentColor)}
             onPress={handleFinalize}
             loading={loading}
