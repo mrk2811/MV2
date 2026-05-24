@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -156,6 +156,12 @@ export default function SetupWizard() {
   const [loading, setLoading] = useState(false);
   const draftId = useRef<string | null>(null);
   const [layoutIdx, setLayoutIdx] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [step]);
   const [data, setData] = useState<WizardData>({
     name: '',
     slug: '',
@@ -472,15 +478,15 @@ export default function SetupWizard() {
                 }
               }}
             >
-              {/* Both always in tree — display toggles visibility (iOS Fabric safe) */}
-              <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hidden}>
-                <Image source={{ uri: data.logoUrl || ' ' }} style={styles.logoImage} />
-              </View>
-              <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hidden : styles.visible}>
-                <View style={styles.logoPlaceholder}>
-                  <Text style={styles.logoPlaceholderText}>+ Choose Logo</Text>
+                {/* Both always in tree — display toggles visibility (iOS Fabric safe) */}
+                <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.logoPickerInner : styles.hidden}>
+                  <Image source={{ uri: data.logoUrl || ' ' }} style={styles.logoImage} />
                 </View>
-              </View>
+                <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hidden : styles.logoPickerInner}>
+                  <View style={styles.logoPlaceholder}>
+                    <Text style={styles.logoPlaceholderText}>+ Choose Logo</Text>
+                  </View>
+                </View>
             </TouchableOpacity>
             <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hidden}>
               <TouchableOpacity onPress={() => updateField('logoUrl', '')}>
@@ -543,7 +549,7 @@ export default function SetupWizard() {
                   {data.name || 'App Name'}
                 </Text>
               </View>
-              <View style={styles.themePreviewBar} />
+              <View style={[styles.themePreviewBar, SWATCH_BG[data.accentColor] ?? styles.themePreviewBarFallback]} />
               <Text style={isDark ? styles.themePreviewDescDark : styles.themePreviewDescLight}>
                 {data.description || 'Your app description will appear here'}
               </Text>
@@ -890,13 +896,14 @@ export default function SetupWizard() {
         accentColor={safeColor(data.accentColor)}
       />
       <ScrollView
+        ref={scrollRef}
         style={styles.content}
         contentContainerStyle={styles.contentInner}
         keyboardShouldPersistTaps="handled"
       >
         {/* All 10 steps always in tree — only current step visible (iOS Fabric safe) */}
         {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-          <View key={`step-${i + 1}`} style={step === i + 1 ? styles.visible : styles.hidden}>
+          <View key={`step-${i + 1}`} style={step === i + 1 ? styles.stepVisible : styles.stepHidden}>
             {renderStepContent(i + 1)}
           </View>
         ))}
@@ -912,20 +919,22 @@ export default function SetupWizard() {
           />
         </View>
         <View style={styles.spacer} />
-        {/* Both buttons always in tree — display toggles visibility (iOS Fabric safe) */}
-        <View style={step < TOTAL_STEPS ? styles.visible : styles.hidden}>
+        {/* Both buttons always in tree — opacity toggles (avoids double display:none flip at step 10) */}
+        <View style={step < TOTAL_STEPS ? styles.visible : styles.hiddenKeepLayout}>
           <WizardButton
             title="Next"
             accentColor={safeColor(data.accentColor)}
             onPress={nextStep}
+            disabled={step >= TOTAL_STEPS}
           />
         </View>
-        <View style={step < TOTAL_STEPS ? styles.hidden : styles.visible}>
+        <View style={step >= TOTAL_STEPS ? styles.visible : styles.hiddenKeepLayout}>
           <WizardButton
             title="Launch Your App"
             accentColor={safeColor(data.accentColor)}
             onPress={handleFinalize}
             loading={loading}
+            disabled={step < TOTAL_STEPS}
           />
         </View>
       </View>
@@ -1202,11 +1211,15 @@ const styles = StyleSheet.create({
   themePreviewLogoFallback: { width: 36, height: 36, borderRadius: 8, marginRight: 10, backgroundColor: '#E63946' },
   themePreviewNameDark: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
   themePreviewNameLight: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
-  themePreviewBar: { height: 4, borderRadius: 2, marginBottom: 10, backgroundColor: '#E63946' },
+  themePreviewBar: { height: 4, borderRadius: 2, marginBottom: 10 },
+  themePreviewBarFallback: { backgroundColor: '#E63946' },
   themePreviewDescDark: { fontSize: 13, lineHeight: 18, color: '#8E8E93' },
   themePreviewDescLight: { fontSize: 13, lineHeight: 18, color: '#6B6B73' },
   visible: {},
   hidden: { display: 'none' },
+  stepVisible: {},
+  stepHidden: { display: 'none' as const },
   hiddenKeepLayout: { opacity: 0 },
+  logoPickerInner: { flex: 1 },
   colorCheckHidden: { fontSize: 18, fontWeight: '700', color: 'transparent' },
 });
