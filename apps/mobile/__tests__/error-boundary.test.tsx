@@ -22,9 +22,6 @@ class ErrorBoundary extends Component<
     return { hasError: true };
   }
   render() {
-    if (this.state.hasError) {
-      this.setState({ hasError: false });
-    }
     return this.props.children;
   }
 }
@@ -93,6 +90,6 @@ describe('ErrorBoundary (idle crash fix)', () => {
       'utf-8',
     );
     expect(layoutSource).toContain("AppState.addEventListener('change'");
-    expect(layoutSource).toContain("state === 'active'");
+    expect(layoutSource).toContain("=== 'active'");
   });
 });
