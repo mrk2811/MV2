@@ -10,6 +10,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import type { ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
@@ -41,7 +42,7 @@ const LAYOUT_OPTIONS = [
 ];
 
 // Pre-built static StyleSheet objects for each palette color (created once at module load)
-const SWATCH_BG: Record<string, ReturnType<typeof StyleSheet.flatten>> = {};
+const SWATCH_BG: Record<string, ViewStyle> = {};
 COLOR_PALETTE.forEach((c) => {
   SWATCH_BG[c] = StyleSheet.create({ s: { backgroundColor: c } }).s;
 });
@@ -471,19 +472,21 @@ export default function SetupWizard() {
                 }
               }}
             >
-              {data.logoUrl && data.logoUrl.length > 0 ? (
-                <Image source={{ uri: data.logoUrl }} style={styles.logoImage} />
-              ) : (
+              {/* Both always in tree — display toggles visibility (iOS Fabric safe) */}
+              <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hidden}>
+                <Image source={{ uri: data.logoUrl || ' ' }} style={styles.logoImage} />
+              </View>
+              <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hidden : styles.visible}>
                 <View style={styles.logoPlaceholder}>
                   <Text style={styles.logoPlaceholderText}>+ Choose Logo</Text>
                 </View>
-              )}
+              </View>
             </TouchableOpacity>
-            {data.logoUrl && data.logoUrl.length > 0 ? (
+            <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hidden}>
               <TouchableOpacity onPress={() => updateField('logoUrl', '')}>
                 <Text style={styles.logoRemoveText}>Remove Logo</Text>
               </TouchableOpacity>
-            ) : null}
+            </View>
 
             {/* Color Palette */}
             <Text style={styles.fieldLabelSpaced}>Accent Color</Text>
@@ -500,9 +503,7 @@ export default function SetupWizard() {
                   ]}
                   onPress={() => updateField('accentColor', color)}
                 >
-                  {data.accentColor === color ? (
-                    <Text style={styles.colorCheck}>{'✓'}</Text>
-                  ) : null}
+                  <Text style={data.accentColor === color ? styles.colorCheck : styles.colorCheckHidden}>{'✓'}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -532,11 +533,12 @@ export default function SetupWizard() {
             {/* Theme Preview - simplified, no dynamic inline styles */}
             <View style={isDark ? styles.themePreviewDark : styles.themePreviewLight}>
               <View style={styles.themePreviewHeader}>
-                {data.logoUrl && data.logoUrl.length > 0 ? (
-                  <Image source={{ uri: data.logoUrl }} style={styles.themePreviewLogo} />
-                ) : (
+                <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hidden}>
+                  <Image source={{ uri: data.logoUrl || ' ' }} style={styles.themePreviewLogo} />
+                </View>
+                <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hidden : styles.visible}>
                   <View style={styles.themePreviewLogoFallback} />
-                )}
+                </View>
                 <Text style={isDark ? styles.themePreviewNameDark : styles.themePreviewNameLight}>
                   {data.name || 'App Name'}
                 </Text>
@@ -730,7 +732,7 @@ export default function SetupWizard() {
                 <Text style={styles.layoutDesc}>{opt.desc}</Text>
               </TouchableOpacity>
             ))}
-            {data.pricingType === 'SUBSCRIPTION' && (
+            <View style={data.pricingType === 'SUBSCRIPTION' ? styles.visible : styles.hidden}>
               <InputField
                 label="Monthly Price ($)"
                 placeholder="9.99"
@@ -738,8 +740,8 @@ export default function SetupWizard() {
                 onChangeText={(text) => updateField('subscriptionPrice', text)}
                 keyboardType="decimal-pad"
               />
-            )}
-            {data.pricingType === 'TOKEN' && (
+            </View>
+            <View style={data.pricingType === 'TOKEN' ? styles.visible : styles.hidden}>
               <InputField
                 label="Token Cost (per action)"
                 placeholder="5"
@@ -747,7 +749,7 @@ export default function SetupWizard() {
                 onChangeText={(text) => updateField('tokenCost', text)}
                 keyboardType="number-pad"
               />
-            )}
+            </View>
             <View style={styles.toggleRow}>
               <Text style={styles.toggleLabel}>Accept All-Access Passport?</Text>
               <TouchableOpacity
@@ -897,28 +899,32 @@ export default function SetupWizard() {
         </View>
       </ScrollView>
       <View style={styles.footer}>
-        {step > 1 && (
+        {/* Back button always in tree — hide on step 1 via opacity to prevent tree mutation */}
+        <View style={step > 1 ? styles.visible : styles.hiddenKeepLayout}>
           <WizardButton
             title="Back"
             variant="ghost"
             onPress={prevStep}
+            disabled={step <= 1}
           />
-        )}
+        </View>
         <View style={styles.spacer} />
-        {step < TOTAL_STEPS ? (
+        {/* Both buttons always in tree — display toggles visibility (iOS Fabric safe) */}
+        <View style={step < TOTAL_STEPS ? styles.visible : styles.hidden}>
           <WizardButton
             title="Next"
             accentColor={safeColor(data.accentColor)}
             onPress={nextStep}
           />
-        ) : (
+        </View>
+        <View style={step < TOTAL_STEPS ? styles.hidden : styles.visible}>
           <WizardButton
             title="Launch Your App"
             accentColor={safeColor(data.accentColor)}
             onPress={handleFinalize}
             loading={loading}
           />
-        )}
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -1196,4 +1202,8 @@ const styles = StyleSheet.create({
   themePreviewBar: { height: 4, borderRadius: 2, marginBottom: 10, backgroundColor: '#E63946' },
   themePreviewDescDark: { fontSize: 13, lineHeight: 18, color: '#8E8E93' },
   themePreviewDescLight: { fontSize: 13, lineHeight: 18, color: '#6B6B73' },
+  visible: {},
+  hidden: { display: 'none' },
+  hiddenKeepLayout: { opacity: 0 },
+  colorCheckHidden: { fontSize: 18, fontWeight: '700', color: 'transparent' },
 });
