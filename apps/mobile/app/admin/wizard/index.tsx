@@ -361,8 +361,8 @@ export default function SetupWizard() {
     updateField(field, arr.length === 0 ? [''] : arr);
   };
 
-  const renderStep = () => {
-    switch (step) {
+  const renderStepContent = (stepNum: number) => {
+    switch (stepNum) {
       case 1:
         return (
           <View>
@@ -651,14 +651,14 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                {data.gatekeeperQuestions.length > 1 && (
+                <View style={data.gatekeeperQuestions.length > 1 ? styles.visible : styles.hidden}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('gatekeeperQuestions', i)}
                   >
                     <Text style={styles.removeBtnText}>×</Text>
                   </TouchableOpacity>
-                )}
+                </View>
               </View>
             ))}
             <TouchableOpacity
@@ -692,14 +692,14 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                {data.communityRules.length > 1 && (
+                <View style={data.communityRules.length > 1 ? styles.visible : styles.hidden}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('communityRules', i)}
                   >
                     <Text style={styles.removeBtnText}>×</Text>
                   </TouchableOpacity>
-                )}
+                </View>
               </View>
             ))}
             <TouchableOpacity
@@ -798,14 +798,14 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                {data.customTags.length > 1 && (
+                <View style={data.customTags.length > 1 ? styles.visible : styles.hidden}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('customTags', i)}
                   >
                     <Text style={styles.removeBtnText}>×</Text>
                   </TouchableOpacity>
-                )}
+                </View>
               </View>
             ))}
             <TouchableOpacity
@@ -894,9 +894,12 @@ export default function SetupWizard() {
         contentContainerStyle={styles.contentInner}
         keyboardShouldPersistTaps="handled"
       >
-        <View key={`step-${step}`}>
-          {renderStep()}
-        </View>
+        {/* All 10 steps always in tree — only current step visible (iOS Fabric safe) */}
+        {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+          <View key={`step-${i + 1}`} style={step === i + 1 ? styles.visible : styles.hidden}>
+            {renderStepContent(i + 1)}
+          </View>
+        ))}
       </ScrollView>
       <View style={styles.footer}>
         {/* Back button always in tree — hide on step 1 via opacity to prevent tree mutation */}
