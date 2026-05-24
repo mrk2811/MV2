@@ -919,8 +919,8 @@ export default function SetupWizard() {
           />
         </View>
         <View style={styles.spacer} />
-        {/* Both buttons always in tree — opacity toggles (avoids double display:none flip at step 10) */}
-        <View style={step < TOTAL_STEPS ? styles.visible : styles.hiddenKeepLayout}>
+        {/* Both buttons always in tree — hiddenSafe keeps in tree but out of layout flow */}
+        <View style={step < TOTAL_STEPS ? styles.visible : styles.hiddenSafe}>
           <WizardButton
             title="Next"
             accentColor={safeColor(data.accentColor)}
@@ -928,7 +928,7 @@ export default function SetupWizard() {
             disabled={step >= TOTAL_STEPS}
           />
         </View>
-        <View style={step >= TOTAL_STEPS ? styles.visible : styles.hiddenKeepLayout}>
+        <View style={step >= TOTAL_STEPS ? styles.visible : styles.hiddenSafe}>
           <WizardButton
             title="Launch Your App"
             accentColor={safeColor(data.accentColor)}
