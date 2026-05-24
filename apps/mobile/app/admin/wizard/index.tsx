@@ -1042,7 +1042,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   carouselCardHidden: {
-    display: 'none',
+    opacity: 0,
+    position: 'absolute' as const,
+    width: 0,
+    height: 0,
+    overflow: 'hidden' as const,
   },
   carouselTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginTop: 12 },
   carouselTitleSelected: { fontSize: 18, fontWeight: '700', color: '#E63946', marginTop: 12 },

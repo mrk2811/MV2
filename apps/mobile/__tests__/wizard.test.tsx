@@ -243,7 +243,7 @@ describe('Admin Setup Wizard', () => {
   });
 
   it('should navigate between layouts with arrows on step 5', () => {
-    const { getByText } = render(<SetupWizard />);
+    const { getByText, getAllByText } = render(<SetupWizard />);
 
     // Navigate to step 5
     fireEvent.press(getByText('Next'));
@@ -255,11 +255,12 @@ describe('Admin Setup Wizard', () => {
     fireEvent.press(getByText('>'));
     expect(getByText('Curated Match Queue')).toBeTruthy();
     expect(getByText('2 / 5')).toBeTruthy();
-    // This one is not selected, so button says "Select"
-    expect(getByText('Select')).toBeTruthy();
+    // All cards are always in tree (hiddenSafe pattern) so multiple "Select" exist
+    const selectBtns = getAllByText('Select');
+    expect(selectBtns.length).toBeGreaterThan(0);
 
-    // Select it
-    fireEvent.press(getByText('Select'));
+    // Select the current card
+    fireEvent.press(selectBtns[0]);
     expect(getByText('Selected')).toBeTruthy();
 
     // Navigate back
