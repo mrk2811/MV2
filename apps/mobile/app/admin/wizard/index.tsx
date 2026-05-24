@@ -154,6 +154,7 @@ export default function SetupWizard() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const draftId = useRef<string | null>(null);
+  const [layoutIdx, setLayoutIdx] = useState(0);
   const [data, setData] = useState<WizardData>({
     name: '',
     slug: '',
@@ -549,28 +550,69 @@ export default function SetupWizard() {
         );
       }
 
-      case 5:
+      case 5: {
+        const current = LAYOUT_OPTIONS[layoutIdx];
+        const isSelected = current && data.layoutType === current.key;
         return (
           <View>
             <Text style={styles.stepTitle}>Choose Your Layout</Text>
             <Text style={styles.stepDesc}>
-              Pick how your community looks to members.
+              Browse layouts and tap Select to choose one.
             </Text>
-            {LAYOUT_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.key}
-                style={data.layoutType === opt.key ? styles.layoutCardActive : styles.layoutCard}
-                onPress={() => updateField('layoutType', opt.key)}
-              >
-                <Text style={data.layoutType === opt.key ? styles.layoutTitleActive : styles.layoutTitle}>
-                  {MOCKUP_DATA[opt.key]?.icon ?? ''} {opt.label}
+
+            {current ? (
+              <View style={isSelected ? styles.carouselCardSelected : styles.carouselCard}>
+                <LayoutMockup type={current.key} />
+                <Text style={isSelected ? styles.carouselTitleSelected : styles.carouselTitle}>
+                  {current.label}
                 </Text>
-                <Text style={styles.layoutDesc}>{opt.desc}</Text>
-                <Text style={styles.layoutRef}>{MOCKUP_DATA[opt.key]?.ref ?? ''}</Text>
+                <Text style={styles.carouselDesc}>{current.desc}</Text>
+                <TouchableOpacity
+                  style={isSelected ? styles.carouselSelectBtnActive : styles.carouselSelectBtn}
+                  onPress={() => updateField('layoutType', current.key)}
+                >
+                  <Text style={isSelected ? styles.carouselSelectTextActive : styles.carouselSelectText}>
+                    {isSelected ? 'Selected' : 'Select'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+
+            {/* Navigation arrows */}
+            <View style={styles.carouselNav}>
+              <TouchableOpacity
+                style={layoutIdx === 0 ? styles.carouselArrowDisabled : styles.carouselArrow}
+                onPress={() => { if (layoutIdx > 0) setLayoutIdx(layoutIdx - 1); }}
+                disabled={layoutIdx === 0}
+              >
+                <Text style={styles.carouselArrowText}>{'<'}</Text>
               </TouchableOpacity>
-            ))}
+
+              <Text style={styles.carouselCounter}>
+                {layoutIdx + 1} / {LAYOUT_OPTIONS.length}
+              </Text>
+
+              <TouchableOpacity
+                style={layoutIdx === LAYOUT_OPTIONS.length - 1 ? styles.carouselArrowDisabled : styles.carouselArrow}
+                onPress={() => { if (layoutIdx < LAYOUT_OPTIONS.length - 1) setLayoutIdx(layoutIdx + 1); }}
+                disabled={layoutIdx === LAYOUT_OPTIONS.length - 1}
+              >
+                <Text style={styles.carouselArrowText}>{'>'}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Dots */}
+            <View style={styles.carouselDots}>
+              {LAYOUT_OPTIONS.map((opt, i) => (
+                <View
+                  key={opt.key}
+                  style={i === layoutIdx ? styles.carouselDotActive : styles.carouselDot}
+                />
+              ))}
+            </View>
           </View>
         );
+      }
 
       case 6:
         return (
@@ -834,7 +876,9 @@ export default function SetupWizard() {
         contentContainerStyle={styles.contentInner}
         keyboardShouldPersistTaps="handled"
       >
-        {renderStep()}
+        <View key={`step-${step}`}>
+          {renderStep()}
+        </View>
       </ScrollView>
       <View style={styles.footer}>
         {step > 1 && (

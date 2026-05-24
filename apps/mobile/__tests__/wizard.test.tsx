@@ -221,7 +221,7 @@ describe('Admin Setup Wizard', () => {
     expect(getByText('DARK')).toBeTruthy();
   });
 
-  it('should render step 5 (layout) with all layout options as vertical list', () => {
+  it('should render step 5 (layout) with card carousel and visual mockup', () => {
     const { getByText } = render(<SetupWizard />);
 
     // Navigate to step 5 (Layout)
@@ -232,17 +232,17 @@ describe('Admin Setup Wizard', () => {
 
     // Verify step 5 renders without crashing
     expect(getByText('Choose Your Layout')).toBeTruthy();
-    expect(getByText('Pick how your community looks to members.')).toBeTruthy();
+    expect(getByText('Browse layouts and tap Select to choose one.')).toBeTruthy();
 
-    // All 5 layout options should be visible at once
-    expect(getByText(/Prompt-First Feed/)).toBeTruthy();
-    expect(getByText(/Curated Match Queue/)).toBeTruthy();
-    expect(getByText(/Discord-Style Channels/)).toBeTruthy();
-    expect(getByText(/WhatsApp-Style List/)).toBeTruthy();
-    expect(getByText(/Grid Singles Roster/)).toBeTruthy();
+    // First layout should be shown by default (Prompt-First Feed)
+    expect(getByText('Prompt-First Feed')).toBeTruthy();
+    expect(getByText('1 / 5')).toBeTruthy();
+
+    // Default layout is selected so button shows "Selected"
+    expect(getByText('Selected')).toBeTruthy();
   });
 
-  it('should select a different layout on step 5 without crashing', () => {
+  it('should navigate between layouts with arrows on step 5', () => {
     const { getByText } = render(<SetupWizard />);
 
     // Navigate to step 5
@@ -251,15 +251,21 @@ describe('Admin Setup Wizard', () => {
     fireEvent.press(getByText('Next'));
     fireEvent.press(getByText('Next'));
 
-    // All layouts visible — tap WhatsApp-Style List
-    fireEvent.press(getByText(/WhatsApp-Style List/));
-    // No crash = success. Verify layouts still render
-    expect(getByText('Choose Your Layout')).toBeTruthy();
-    expect(getByText(/Prompt-First Feed/)).toBeTruthy();
+    // Tap right arrow to go to next layout
+    fireEvent.press(getByText('>'));
+    expect(getByText('Curated Match Queue')).toBeTruthy();
+    expect(getByText('2 / 5')).toBeTruthy();
+    // This one is not selected, so button says "Select"
+    expect(getByText('Select')).toBeTruthy();
 
-    // Tap another layout
-    fireEvent.press(getByText(/Discord-Style Channels/));
-    expect(getByText('Choose Your Layout')).toBeTruthy();
+    // Select it
+    fireEvent.press(getByText('Select'));
+    expect(getByText('Selected')).toBeTruthy();
+
+    // Navigate back
+    fireEvent.press(getByText('<'));
+    expect(getByText('Prompt-First Feed')).toBeTruthy();
+    expect(getByText('1 / 5')).toBeTruthy();
   });
 
   it('should not crash when navigating back and forth through steps 4-5', () => {
