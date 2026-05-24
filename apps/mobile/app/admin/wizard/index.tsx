@@ -478,17 +478,17 @@ export default function SetupWizard() {
                 }
               }}
             >
-                {/* Both always in tree — display toggles visibility (iOS Fabric safe) */}
-                <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.logoPickerInner : styles.hidden}>
-                  <Image source={{ uri: data.logoUrl || ' ' }} style={styles.logoImage} />
-                </View>
-                <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hidden : styles.logoPickerInner}>
+                    {/* Both always in tree — safe toggle (no display:none) */}
+                    <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.logoPickerInner : styles.hiddenSafe}>
+                      <Image source={{ uri: data.logoUrl || ' ' }} style={styles.logoImage} />
+                    </View>
+                    <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hiddenSafe : styles.logoPickerInner}>
                   <View style={styles.logoPlaceholder}>
                     <Text style={styles.logoPlaceholderText}>+ Choose Logo</Text>
                   </View>
                 </View>
             </TouchableOpacity>
-            <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hidden}>
+            <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hiddenSafe}>
               <TouchableOpacity onPress={() => updateField('logoUrl', '')}>
                 <Text style={styles.logoRemoveText}>Remove Logo</Text>
               </TouchableOpacity>
@@ -539,12 +539,12 @@ export default function SetupWizard() {
             {/* Theme Preview - simplified, no dynamic inline styles */}
             <View style={isDark ? styles.themePreviewDark : styles.themePreviewLight}>
               <View style={styles.themePreviewHeader}>
-                <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hidden}>
-                  <Image source={{ uri: data.logoUrl || ' ' }} style={styles.themePreviewLogo} />
-                </View>
-                <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hidden : styles.visible}>
-                  <View style={styles.themePreviewLogoFallback} />
-                </View>
+                  <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hiddenSafe}>
+                    <Image source={{ uri: data.logoUrl || ' ' }} style={styles.themePreviewLogo} />
+                  </View>
+                  <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hiddenSafe : styles.visible}>
+                    <View style={styles.themePreviewLogoFallback} />
+                  </View>
                 <Text style={isDark ? styles.themePreviewNameDark : styles.themePreviewNameLight}>
                   {data.name || 'App Name'}
                 </Text>
@@ -657,7 +657,7 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                <View style={data.gatekeeperQuestions.length > 1 ? styles.visible : styles.hidden}>
+                <View style={data.gatekeeperQuestions.length > 1 ? styles.visible : styles.hiddenSafe}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('gatekeeperQuestions', i)}
@@ -698,7 +698,7 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                <View style={data.communityRules.length > 1 ? styles.visible : styles.hidden}>
+                <View style={data.communityRules.length > 1 ? styles.visible : styles.hiddenSafe}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('communityRules', i)}
@@ -738,7 +738,7 @@ export default function SetupWizard() {
                 <Text style={styles.layoutDesc}>{opt.desc}</Text>
               </TouchableOpacity>
             ))}
-            <View style={data.pricingType === 'SUBSCRIPTION' ? styles.visible : styles.hidden}>
+            <View style={data.pricingType === 'SUBSCRIPTION' ? styles.visible : styles.hiddenSafe}>
               <InputField
                 label="Monthly Price ($)"
                 placeholder="9.99"
@@ -747,7 +747,7 @@ export default function SetupWizard() {
                 keyboardType="decimal-pad"
               />
             </View>
-            <View style={data.pricingType === 'TOKEN' ? styles.visible : styles.hidden}>
+            <View style={data.pricingType === 'TOKEN' ? styles.visible : styles.hiddenSafe}>
               <InputField
                 label="Token Cost (per action)"
                 placeholder="5"
@@ -804,7 +804,7 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                <View style={data.customTags.length > 1 ? styles.visible : styles.hidden}>
+                <View style={data.customTags.length > 1 ? styles.visible : styles.hiddenSafe}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('customTags', i)}
@@ -1220,6 +1220,7 @@ const styles = StyleSheet.create({
   stepVisible: {},
   stepHidden: { display: 'none' as const },
   hiddenKeepLayout: { opacity: 0 },
+  hiddenSafe: { opacity: 0, position: 'absolute' as const, width: 0, height: 0, overflow: 'hidden' as const },
   logoPickerInner: { flex: 1 },
   colorCheckHidden: { fontSize: 18, fontWeight: '700', color: 'transparent' },
 });
