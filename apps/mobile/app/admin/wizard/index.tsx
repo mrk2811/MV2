@@ -40,6 +40,12 @@ const LAYOUT_OPTIONS = [
   { key: 'GRID_SINGLES_ROSTER', label: 'Grid Singles Roster', desc: 'Photo grid directory of members' },
 ];
 
+// Pre-built static StyleSheet objects for each palette color (created once at module load)
+const SWATCH_BG: Record<string, ReturnType<typeof StyleSheet.flatten>> = {};
+COLOR_PALETTE.forEach((c) => {
+  SWATCH_BG[c] = StyleSheet.create({ s: { backgroundColor: c } }).s;
+});
+
 const MOCKUP_DATA: Record<string, { icon: string; title: string; line1: string; line2: string; line3: string; ref: string }> = {
   PROMPT_FIRST_FEED: {
     icon: '👆',
@@ -148,7 +154,6 @@ export default function SetupWizard() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const draftId = useRef<string | null>(null);
-  const [layoutIdx, setLayoutIdx] = useState(0);
   const [data, setData] = useState<WizardData>({
     name: '',
     slug: '',
@@ -489,6 +494,7 @@ export default function SetupWizard() {
                   testID={`color-swatch-${color}`}
                   style={[
                     styles.colorSwatch,
+                    SWATCH_BG[color],
                     data.accentColor === color ? styles.colorSwatchActive : styles.colorSwatchInactive,
                   ]}
                   onPress={() => updateField('accentColor', color)}
@@ -543,69 +549,28 @@ export default function SetupWizard() {
         );
       }
 
-      case 5: {
-        const current = LAYOUT_OPTIONS[layoutIdx];
-        const isSelected = current && data.layoutType === current.key;
+      case 5:
         return (
           <View>
             <Text style={styles.stepTitle}>Choose Your Layout</Text>
             <Text style={styles.stepDesc}>
-              Browse layouts and tap Select to choose one.
+              Pick how your community looks to members.
             </Text>
-
-            {current ? (
-              <View style={isSelected ? styles.carouselCardSelected : styles.carouselCard}>
-                <LayoutMockup type={current.key} />
-                <Text style={isSelected ? styles.carouselTitleSelected : styles.carouselTitle}>
-                  {current.label}
+            {LAYOUT_OPTIONS.map((opt) => (
+              <TouchableOpacity
+                key={opt.key}
+                style={data.layoutType === opt.key ? styles.layoutCardActive : styles.layoutCard}
+                onPress={() => updateField('layoutType', opt.key)}
+              >
+                <Text style={data.layoutType === opt.key ? styles.layoutTitleActive : styles.layoutTitle}>
+                  {MOCKUP_DATA[opt.key]?.icon ?? ''} {opt.label}
                 </Text>
-                <Text style={styles.carouselDesc}>{current.desc}</Text>
-                <TouchableOpacity
-                  style={isSelected ? styles.carouselSelectBtnActive : styles.carouselSelectBtn}
-                  onPress={() => updateField('layoutType', current.key)}
-                >
-                  <Text style={isSelected ? styles.carouselSelectTextActive : styles.carouselSelectText}>
-                    {isSelected ? 'Selected' : 'Select'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
-
-            {/* Navigation arrows */}
-            <View style={styles.carouselNav}>
-              <TouchableOpacity
-                style={layoutIdx === 0 ? styles.carouselArrowDisabled : styles.carouselArrow}
-                onPress={() => { if (layoutIdx > 0) setLayoutIdx(layoutIdx - 1); }}
-                disabled={layoutIdx === 0}
-              >
-                <Text style={styles.carouselArrowText}>{'<'}</Text>
+                <Text style={styles.layoutDesc}>{opt.desc}</Text>
+                <Text style={styles.layoutRef}>{MOCKUP_DATA[opt.key]?.ref ?? ''}</Text>
               </TouchableOpacity>
-
-              <Text style={styles.carouselCounter}>
-                {layoutIdx + 1} / {LAYOUT_OPTIONS.length}
-              </Text>
-
-              <TouchableOpacity
-                style={layoutIdx === LAYOUT_OPTIONS.length - 1 ? styles.carouselArrowDisabled : styles.carouselArrow}
-                onPress={() => { if (layoutIdx < LAYOUT_OPTIONS.length - 1) setLayoutIdx(layoutIdx + 1); }}
-                disabled={layoutIdx === LAYOUT_OPTIONS.length - 1}
-              >
-                <Text style={styles.carouselArrowText}>{'>'}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Dots */}
-            <View style={styles.carouselDots}>
-              {LAYOUT_OPTIONS.map((opt, i) => (
-                <View
-                  key={opt.key}
-                  style={i === layoutIdx ? styles.carouselDotActive : styles.carouselDot}
-                />
-              ))}
-            </View>
+            ))}
           </View>
         );
-      }
 
       case 6:
         return (
@@ -794,12 +759,7 @@ export default function SetupWizard() {
             <View style={styles.toggleRow}>
               <Text style={styles.toggleLabel}>Enable Matchmaker Mode?</Text>
               <TouchableOpacity
-                style={[
-                  styles.toggle,
-                  data.matchmakerEnabled && {
-                    backgroundColor: safeColor(data.accentColor),
-                  },
-                ]}
+                style={data.matchmakerEnabled ? styles.toggleActive : styles.toggle}
                 onPress={() =>
                   updateField('matchmakerEnabled', !data.matchmakerEnabled)
                 }
@@ -984,6 +944,7 @@ const styles = StyleSheet.create({
   layoutTitle: { color: '#1C1C1E', fontSize: 16, fontWeight: '600' },
   layoutTitleActive: { color: '#E63946', fontSize: 16, fontWeight: '600' },
   layoutDesc: { color: '#6B6B73', fontSize: 13, marginTop: 4 },
+  layoutRef: { color: '#8E8E93', fontSize: 11, fontStyle: 'italic', marginTop: 4 },
   carouselCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
