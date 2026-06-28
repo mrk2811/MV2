@@ -9,11 +9,11 @@ export default function HomeScreen() {
   const { signOut } = useAuth();
   const { user } = useUser();
 
-  const displayName = user?.phoneNumbers?.[0]?.phoneNumber || 'Member';
+  const displayName = user?.firstName || user?.phoneNumbers?.[0]?.phoneNumber || 'Member';
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
 
       <View style={styles.userRow}>
         <Text style={styles.greeting}>Hey, {displayName}</Text>
@@ -24,18 +24,18 @@ export default function HomeScreen() {
 
       <View style={styles.hero}>
         <Text style={styles.logo}>MV2</Text>
-        <Text style={styles.tagline}>Your communities. Your dating pools.</Text>
+        <Text style={styles.tagline}>Your apps. Your dating pools.</Text>
       </View>
 
       <View style={styles.actions}>
         <WizardButton
-          title="Discover Communities"
+          title="Discover Apps"
           accentColor="#E63946"
           onPress={() => router.push('/onboarding/hub')}
         />
         <View style={styles.gap} />
         <WizardButton
-          title="Create a Community"
+          title="Create Your App"
           variant="secondary"
           onPress={() => router.push('/admin/wizard')}
         />
@@ -47,7 +47,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   greeting: {
-    color: '#888892',
+    color: '#6B6B73',
     fontSize: 14,
   },
   signOutBtn: {
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2A2A2D',
+    borderColor: '#E5E5EA',
   },
   signOutText: {
     color: '#E63946',
@@ -83,12 +83,12 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 48,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     letterSpacing: 4,
   },
   tagline: {
     fontSize: 16,
-    color: '#888892',
+    color: '#6B6B73',
     marginTop: 12,
   },
   actions: {

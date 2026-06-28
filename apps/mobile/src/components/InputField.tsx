@@ -10,6 +10,9 @@ export function InputField({
   label,
   hint,
   error,
+  multiline,
+  numberOfLines,
+  style,
   ...props
 }: InputFieldProps) {
   return (
@@ -17,8 +20,14 @@ export function InputField({
       <Text style={styles.label}>{label}</Text>
       {hint && <Text style={styles.hint}>{hint}</Text>}
       <TextInput
-        style={[styles.input, error && styles.inputError]}
-        placeholderTextColor="#555"
+        style={[
+          styles.input,
+          multiline && { minHeight: 80, textAlignVertical: 'top' as const },
+          error && styles.inputError,
+          style,
+        ]}
+        placeholderTextColor="#8E8E93"
+        multiline={multiline}
         {...props}
       />
       {error && <Text style={styles.error}>{error}</Text>}
@@ -28,16 +37,16 @@ export function InputField({
 
 const styles = StyleSheet.create({
   container: { marginBottom: 20 },
-  label: { color: '#FFFFFF', fontSize: 15, fontWeight: '600', marginBottom: 4 },
-  hint: { color: '#888892', fontSize: 13, marginBottom: 8 },
+  label: { color: '#1C1C1E', fontSize: 15, fontWeight: '600', marginBottom: 4 },
+  hint: { color: '#6B6B73', fontSize: 13, marginBottom: 8 },
   input: {
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#F5F5F7',
     borderRadius: 10,
     padding: 14,
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2E',
+    borderColor: '#E5E5EA',
   },
   inputError: { borderColor: '#E63946' },
   error: { color: '#E63946', fontSize: 12, marginTop: 4 },

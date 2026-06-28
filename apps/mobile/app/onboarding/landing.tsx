@@ -38,7 +38,7 @@ export default function LandingPage() {
     api
       .get<TenantDetail>(`/tenants/${slug}`)
       .then(setTenant)
-      .catch(() => setError('Community not found'))
+      .catch(() => setError('App not found'))
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -53,7 +53,7 @@ export default function LandingPage() {
   if (error || !tenant) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>{error || 'Community not found'}</Text>
+        <Text style={styles.errorText}>{error || 'App not found'}</Text>
         <WizardButton
           title="Go Back"
           variant="secondary"
@@ -72,7 +72,7 @@ export default function LandingPage() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={[styles.heroBanner, { backgroundColor: accent + '20' }]}>
           <View style={[styles.heroAccent, { backgroundColor: accent }]} />
@@ -96,7 +96,7 @@ export default function LandingPage() {
 
         {rules.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Community Rules</Text>
+            <Text style={styles.sectionTitle}>App Rules</Text>
             {rules.map((rule, i) => (
               <View key={i} style={styles.ruleRow}>
                 <Text style={[styles.ruleBullet, { color: accent }]}>
@@ -150,10 +150,10 @@ function formatLayout(type: string): string {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F10' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   centered: {
     flex: 1,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -177,22 +177,22 @@ const styles = StyleSheet.create({
   heroName: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     textAlign: 'center',
   },
   heroLocation: {
     fontSize: 14,
-    color: '#888892',
+    color: '#6B6B73',
     marginTop: 6,
   },
   section: { paddingHorizontal: 24, marginTop: 24 },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     marginBottom: 8,
   },
-  sectionText: { fontSize: 15, color: '#AAAAAA', lineHeight: 22 },
+  sectionText: { fontSize: 15, color: '#8E8E93', lineHeight: 22 },
   infoRow: {
     flexDirection: 'row',
     paddingHorizontal: 24,
@@ -201,28 +201,28 @@ const styles = StyleSheet.create({
   },
   chip: {
     flex: 1,
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#F5F5F7',
     padding: 14,
     borderRadius: 10,
     alignItems: 'center',
   },
-  chipLabel: { color: '#888892', fontSize: 12, marginBottom: 4 },
-  chipValue: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
+  chipLabel: { color: '#6B6B73', fontSize: 12, marginBottom: 4 },
+  chipValue: { color: '#1C1C1E', fontSize: 15, fontWeight: '600' },
   ruleRow: {
     flexDirection: 'row',
     marginBottom: 8,
     paddingRight: 16,
   },
   ruleBullet: { fontSize: 14, fontWeight: '600', marginRight: 8, width: 20 },
-  ruleText: { flex: 1, color: '#AAAAAA', fontSize: 14, lineHeight: 20 },
+  ruleText: { flex: 1, color: '#8E8E93', fontSize: 14, lineHeight: 20 },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#1A1A1D',
+    borderTopColor: '#E5E5EA',
   },
 });

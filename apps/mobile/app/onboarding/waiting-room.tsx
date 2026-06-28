@@ -80,7 +80,7 @@ export default function WaitingRoom() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={
@@ -100,13 +100,13 @@ export default function WaitingRoom() {
         </Text>
 
         <Text style={styles.communityName}>
-          {state?.tenant?.name || 'Community'}
+          {state?.tenant?.name || 'App'}
         </Text>
 
         <Text style={styles.desc}>
           {isRejected
-            ? 'Unfortunately your application was not approved. You can contact the community admin for more info.'
-            : 'Your application has been submitted! The community admin will review it soon. Pull down to refresh.'}
+            ? 'Unfortunately your application was not approved. You can contact the app admin for more info.'
+            : 'Your application has been submitted! The app admin will review it soon. Pull down to refresh.'}
         </Text>
 
         {state?.application?.createdAt && (
@@ -121,13 +121,13 @@ export default function WaitingRoom() {
             styles.statusBadge,
             isRejected
               ? styles.rejectedBadge
-              : { backgroundColor: accent + '20' },
+              : styles.pendingBadge,
           ]}
         >
           <Text
             style={[
               styles.statusText,
-              isRejected ? styles.rejectedText : { color: accent },
+              isRejected ? styles.rejectedText : styles.pendingText,
             ]}
           >
             {status}
@@ -147,10 +147,10 @@ export default function WaitingRoom() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F10' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   centered: {
     flex: 1,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -165,30 +165,32 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     marginBottom: 8,
   },
   communityName: {
     fontSize: 16,
-    color: '#888892',
+    color: '#6B6B73',
     marginBottom: 20,
   },
   desc: {
     fontSize: 15,
-    color: '#AAAAAA',
+    color: '#8E8E93',
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 20,
     maxWidth: 320,
   },
-  timestamp: { color: '#666', fontSize: 13, marginBottom: 16 },
+  timestamp: { color: '#8E8E93', fontSize: 13, marginBottom: 16 },
   statusBadge: {
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 20,
   },
   rejectedBadge: { backgroundColor: '#E6394620' },
+  pendingBadge: { backgroundColor: '#E6394620' },
   statusText: { fontSize: 14, fontWeight: '600' },
   rejectedText: { color: '#E63946' },
-  footer: { padding: 20, borderTopWidth: 1, borderTopColor: '#1A1A1D' },
+  pendingText: { color: '#E63946' },
+  footer: { padding: 20, borderTopWidth: 1, borderTopColor: '#E5E5EA' },
 });

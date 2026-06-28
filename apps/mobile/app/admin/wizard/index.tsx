@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
 } from 'react-native';
+import type { ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as ImagePicker from 'expo-image-picker';
 import { StepIndicator } from '../../../src/components/StepIndicator';
 import { WizardButton } from '../../../src/components/WizardButton';
 import { InputField } from '../../../src/components/InputField';
@@ -16,13 +21,100 @@ import { api } from '../../../src/api/client';
 
 const TOTAL_STEPS = 10;
 
-const LAYOUT_OPTIONS = [
-  { key: 'PROMPT_FIRST_FEED', label: 'Prompt-First Feed', desc: 'Content-rich profiles with card-swipe navigation' },
-  { key: 'CURATED_MATCH_QUEUE', label: 'Curated Match Queue', desc: 'Recommendation-driven guided matchmaking' },
-  { key: 'DISCORD_CHANNEL_MATRIX', label: 'Discord-Style Channels', desc: 'Categorized list hubs for directory separation' },
-  { key: 'WHATSAPP_DIRECT_LIST', label: 'WhatsApp-Style List', desc: 'Streamlined chat-first interface' },
-  { key: 'GRID_SINGLES_ROSTER', label: 'Grid Singles Roster', desc: 'High-density photo directory grid' },
+const HEX_RE = /^#([0-9A-Fa-f]{3}){1,2}$/;
+function safeColor(color: string, fallback = '#E63946'): string {
+  return HEX_RE.test(color) ? color : fallback;
+}
+
+const COLOR_PALETTE = [
+  '#E63946', '#FF6B6B', '#FF8C42', '#F4A261',
+  '#E9C46A', '#2A9D8F', '#06D6A0', '#4ECDC4',
+  '#3A86FF', '#6C63FF', '#8338EC', '#FF006E',
+  '#1D3557', '#457B9D', '#A8DADC', '#264653',
 ];
+
+const LAYOUT_OPTIONS = [
+  { key: 'PROMPT_FIRST_FEED', label: 'Prompt-First Feed', desc: 'Swipe through rich profiles like dating apps' },
+  { key: 'CURATED_MATCH_QUEUE', label: 'Curated Match Queue', desc: 'Get matched with recommended people' },
+  { key: 'DISCORD_CHANNEL_MATRIX', label: 'Discord-Style Channels', desc: 'Browse organized topic channels' },
+  { key: 'WHATSAPP_DIRECT_LIST', label: 'WhatsApp-Style List', desc: 'Chat-first with a clean message list' },
+  { key: 'GRID_SINGLES_ROSTER', label: 'Grid Singles Roster', desc: 'Photo grid directory of members' },
+];
+
+// Pre-built static StyleSheet objects for each palette color (created once at module load)
+const SWATCH_BG: Record<string, ViewStyle> = {};
+COLOR_PALETTE.forEach((c) => {
+  SWATCH_BG[c] = StyleSheet.create({ s: { backgroundColor: c } }).s;
+});
+
+const MOCKUP_DATA: Record<string, { icon: string; title: string; line1: string; line2: string; line3: string; ref: string }> = {
+  PROMPT_FIRST_FEED: {
+    icon: '👆',
+    title: 'Swipe Cards',
+    line1: 'Members see one profile at a time',
+    line2: 'Pass or like with swipe gestures',
+    line3: 'Bio, photo, and prompts on each card',
+    ref: 'Similar to Hinge / Tinder',
+  },
+  CURATED_MATCH_QUEUE: {
+    icon: '💘',
+    title: 'Daily Matches',
+    line1: 'Algorithm picks one match per day',
+    line2: 'Shows compatibility score & shared interests',
+    line3: 'Tap "Connect" to start a conversation',
+    ref: 'Similar to Coffee Meets Bagel',
+  },
+  DISCORD_CHANNEL_MATRIX: {
+    icon: '💬',
+    title: 'Topic Channels',
+    line1: '# general, # intros, # events, # photos',
+    line2: 'Members post in organized channels',
+    line3: 'Voice rooms for live group chats',
+    ref: 'Similar to Discord / Slack',
+  },
+  WHATSAPP_DIRECT_LIST: {
+    icon: '📱',
+    title: 'Direct Messages',
+    line1: 'Chat list with recent conversations',
+    line2: 'See name, last message & timestamp',
+    line3: 'Unread badges on new messages',
+    ref: 'Similar to WhatsApp / iMessage',
+  },
+  GRID_SINGLES_ROSTER: {
+    icon: '👥',
+    title: 'Member Grid',
+    line1: 'Photo grid of all app members',
+    line2: 'Tap any profile to view details',
+    line3: 'Filter & search by tags or location',
+    ref: 'Similar to Instagram / Meetup',
+  },
+};
+
+function LayoutMockup({ type }: { type: string }) {
+  const d = MOCKUP_DATA[type];
+  if (!d) return null;
+  return (
+    <View style={mck.card}>
+      <Text style={mck.icon}>{d.icon}</Text>
+      <Text style={mck.title}>{d.title}</Text>
+      <View style={mck.divider} />
+      <Text style={mck.line}>{d.line1}</Text>
+      <Text style={mck.line}>{d.line2}</Text>
+      <Text style={mck.line}>{d.line3}</Text>
+      <View style={mck.divider} />
+      <Text style={mck.ref}>{d.ref}</Text>
+    </View>
+  );
+}
+
+const mck = StyleSheet.create({
+  card: { width: 200, alignSelf: 'center', backgroundColor: '#F5F5F7', borderRadius: 16, paddingVertical: 20, paddingHorizontal: 18, borderWidth: 1, borderColor: '#E5E5EA' },
+  icon: { fontSize: 40, textAlign: 'center', marginBottom: 8 },
+  title: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', textAlign: 'center', marginBottom: 4 },
+  divider: { height: 1, backgroundColor: '#E5E5EA', marginVertical: 10 },
+  line: { fontSize: 12, color: '#3A3A3C', lineHeight: 18, marginBottom: 2 },
+  ref: { fontSize: 11, color: '#8E8E93', fontStyle: 'italic', textAlign: 'center' },
+});
 
 const PRICING_OPTIONS = [
   { key: 'FREE', label: 'Free', desc: 'No charge — open access after approval' },
@@ -63,6 +155,13 @@ export default function SetupWizard() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const draftId = useRef<string | null>(null);
+  const [layoutIdx, setLayoutIdx] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [step]);
   const [data, setData] = useState<WizardData>({
     name: '',
     slug: '',
@@ -171,13 +270,25 @@ export default function SetupWizard() {
   };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
+  const ensureDraft = useCallback(async (): Promise<string | null> => {
+    if (draftId.current) return draftId.current;
+    try {
+      const draft = await api.post<WizardDraft>('/setup-wizard', {});
+      draftId.current = draft.id;
+      return draft.id;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const handleFinalize = async () => {
     if (!data.name || !data.slug) {
-      Alert.alert('Missing Info', 'Community name and slug are required.');
+      Alert.alert('Missing Info', 'App name and slug are required.');
       return;
     }
-    if (!draftId.current) {
-      Alert.alert('Error', 'No draft found. Please restart the wizard.');
+    const resolvedDraftId = await ensureDraft();
+    if (!resolvedDraftId) {
+      Alert.alert('Error', 'Could not connect to server. Please check your connection and try again.');
       return;
     }
     setLoading(true);
@@ -192,7 +303,7 @@ export default function SetupWizard() {
         .filter((t) => t.trim())
         .map((name) => ({ name }));
 
-      await api.post(`/setup-wizard/${draftId.current}/finalize`, {
+      await api.post(`/setup-wizard/${resolvedDraftId}/finalize`, {
         name: data.name,
         slug: data.slug,
         description: data.description || undefined,
@@ -220,12 +331,12 @@ export default function SetupWizard() {
         matchmakerEnabled: data.matchmakerEnabled,
       });
 
-      Alert.alert('Community Created!', `${data.name} is now live.`, [
+      Alert.alert('App Created!', `${data.name} is now live.`, [
         { text: 'OK', onPress: () => router.replace('/') },
       ]);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to create community';
+        err instanceof Error ? err.message : 'Failed to create app';
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
@@ -256,18 +367,18 @@ export default function SetupWizard() {
     updateField(field, arr.length === 0 ? [''] : arr);
   };
 
-  const renderStep = () => {
-    switch (step) {
+  const renderStepContent = (stepNum: number) => {
+    switch (stepNum) {
       case 1:
         return (
           <View>
-            <Text style={styles.stepTitle}>Name Your Community</Text>
+            <Text style={styles.stepTitle}>Name Your App</Text>
             <Text style={styles.stepDesc}>
-              Choose a name that represents your group. This is what members will
+              Choose a name for your app. This is what members will
               see.
             </Text>
             <InputField
-              label="Community Name"
+              label="App Name"
               placeholder="e.g. Brooklyn Run Club Singles"
               value={data.name}
               onChangeText={(text) => {
@@ -285,12 +396,11 @@ export default function SetupWizard() {
             />
             <InputField
               label="Description"
-              hint="Brief description of your community"
-              placeholder="A singles community for Brooklyn runners..."
+              hint="Brief description of your app"
+              placeholder="A singles app for Brooklyn runners..."
               value={data.description}
               onChangeText={(text) => updateField('description', text)}
               multiline
-              numberOfLines={3}
             />
           </View>
         );
@@ -318,7 +428,7 @@ export default function SetupWizard() {
           <View>
             <Text style={styles.stepTitle}>Geographic Anchor</Text>
             <Text style={styles.stepDesc}>
-              Where is your community based? This helps with local discovery.
+              Where is your app based? This helps with local discovery.
             </Text>
             <InputField
               label="Location"
@@ -338,89 +448,193 @@ export default function SetupWizard() {
           </View>
         );
 
-      case 4:
+      case 4: {
+        const isDark = data.themeMode === 'DARK';
         return (
           <View>
             <Text style={styles.stepTitle}>Branding</Text>
             <Text style={styles.stepDesc}>
-              Customize how your community looks. Upload a logo and pick colors.
+              Customize how your app looks. Pick a logo, colors, and theme.
             </Text>
-            <InputField
-              label="Logo URL"
-              hint="Optional — paste a URL to your community logo"
-              placeholder="https://..."
-              value={data.logoUrl}
-              onChangeText={(text) => updateField('logoUrl', text)}
-              autoCapitalize="none"
-              keyboardType="url"
-            />
-            <InputField
-              label="Accent Color"
-              hint="Hex color code for your community brand"
-              placeholder="#E63946"
-              value={data.accentColor}
-              onChangeText={(text) => updateField('accentColor', text)}
-              autoCapitalize="none"
-            />
-            <Text style={styles.fieldLabel}>Theme Mode</Text>
-            <View style={styles.optionRow}>
-              {(['DARK', 'LIGHT'] as const).map((mode) => (
+
+            {/* Logo Picker */}
+            <Text style={styles.fieldLabel}>App Logo</Text>
+            <Text style={styles.hint}>Tap to select from your photo library</Text>
+            <TouchableOpacity
+              style={styles.logoPicker}
+              onPress={async () => {
+                try {
+                  const result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ['images'],
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 0.8,
+                  });
+                  if (!result.canceled && result.assets[0]) {
+                    updateField('logoUrl', result.assets[0].uri);
+                  }
+                } catch {
+                  Alert.alert('Error', 'Could not open photo library');
+                }
+              }}
+            >
+                    {/* Both always in tree — safe toggle (no display:none) */}
+                    <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.logoPickerInner : styles.hiddenSafe}>
+                      <Image source={{ uri: data.logoUrl || ' ' }} style={styles.logoImage} />
+                    </View>
+                    <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hiddenSafe : styles.logoPickerInner}>
+                  <View style={styles.logoPlaceholder}>
+                    <Text style={styles.logoPlaceholderText}>+ Choose Logo</Text>
+                  </View>
+                </View>
+            </TouchableOpacity>
+            <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hiddenSafe}>
+              <TouchableOpacity onPress={() => updateField('logoUrl', '')}>
+                <Text style={styles.logoRemoveText}>Remove Logo</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Color Palette */}
+            <Text style={styles.fieldLabelSpaced}>Accent Color</Text>
+            <Text style={styles.hint}>Pick a color for your app brand</Text>
+            <View style={styles.colorGrid}>
+              {COLOR_PALETTE.map((color) => (
                 <TouchableOpacity
-                  key={mode}
+                  key={color}
+                  testID={`color-swatch-${color}`}
                   style={[
-                    styles.optionChip,
-                    data.themeMode === mode && {
-                      borderColor: data.accentColor,
-                      backgroundColor: data.accentColor + '20',
-                    },
+                    styles.colorSwatch,
+                    SWATCH_BG[color],
+                    data.accentColor === color ? styles.colorSwatchActive : styles.colorSwatchInactive,
                   ]}
-                  onPress={() => updateField('themeMode', mode)}
+                  onPress={() => updateField('accentColor', color)}
                 >
-                  <Text
-                    style={[
-                      styles.optionChipText,
-                      data.themeMode === mode && { color: data.accentColor },
-                    ]}
-                  >
-                    {mode}
-                  </Text>
+                  <Text style={data.accentColor === color ? styles.colorCheck : styles.colorCheckHidden}>{'✓'}</Text>
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* Theme Mode */}
+            <Text style={styles.fieldLabelSpaced}>Theme Mode</Text>
+            <Text style={styles.hint}>Choose light or dark mode for your app</Text>
+            <View style={styles.optionRow}>
+              <TouchableOpacity
+                style={data.themeMode === 'DARK' ? styles.optionChipActive : styles.optionChip}
+                onPress={() => updateField('themeMode', 'DARK')}
+              >
+                <Text style={data.themeMode === 'DARK' ? styles.optionChipTextActive : styles.optionChipText}>
+                  DARK
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={data.themeMode === 'LIGHT' ? styles.optionChipActive : styles.optionChip}
+                onPress={() => updateField('themeMode', 'LIGHT')}
+              >
+                <Text style={data.themeMode === 'LIGHT' ? styles.optionChipTextActive : styles.optionChipText}>
+                  LIGHT
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Theme Preview - simplified, no dynamic inline styles */}
+            <View style={isDark ? styles.themePreviewDark : styles.themePreviewLight}>
+              <View style={styles.themePreviewHeader}>
+                  <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.visible : styles.hiddenSafe}>
+                    <Image source={{ uri: data.logoUrl || ' ' }} style={styles.themePreviewLogo} />
+                  </View>
+                  <View style={data.logoUrl && data.logoUrl.length > 0 ? styles.hiddenSafe : styles.visible}>
+                    <View style={styles.themePreviewLogoFallback} />
+                  </View>
+                <Text style={isDark ? styles.themePreviewNameDark : styles.themePreviewNameLight}>
+                  {data.name || 'App Name'}
+                </Text>
+              </View>
+              <View style={[styles.themePreviewBar, SWATCH_BG[data.accentColor] ?? styles.themePreviewBarFallback]} />
+              <Text style={isDark ? styles.themePreviewDescDark : styles.themePreviewDescLight}>
+                {data.description || 'Your app description will appear here'}
+              </Text>
+            </View>
           </View>
         );
+      }
 
       case 5:
         return (
           <View>
             <Text style={styles.stepTitle}>Choose Your Layout</Text>
             <Text style={styles.stepDesc}>
-              How members will browse and interact with profiles in your
-              community.
+              Browse layouts and tap Select to choose one.
             </Text>
-            {LAYOUT_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.key}
-                style={[
-                  styles.layoutCard,
-                  data.layoutType === opt.key && {
-                    borderColor: data.accentColor,
-                    backgroundColor: data.accentColor + '10',
-                  },
-                ]}
-                onPress={() => updateField('layoutType', opt.key)}
-              >
-                <Text
-                  style={[
-                    styles.layoutTitle,
-                    data.layoutType === opt.key && { color: data.accentColor },
-                  ]}
+
+            {/* All 5 cards always in tree; display toggles visibility */}
+            {LAYOUT_OPTIONS.map((opt, i) => {
+              const sel = data.layoutType === opt.key;
+              const visible = i === layoutIdx;
+              return (
+                <View
+                  key={opt.key}
+                  style={visible
+                    ? (sel ? styles.carouselCardSelected : styles.carouselCard)
+                    : styles.carouselCardHidden}
                 >
-                  {opt.label}
-                </Text>
-                <Text style={styles.layoutDesc}>{opt.desc}</Text>
+                  <View style={mck.card}>
+                    <Text style={mck.icon}>{MOCKUP_DATA[opt.key]?.icon ?? ''}</Text>
+                    <Text style={mck.title}>{MOCKUP_DATA[opt.key]?.title ?? ''}</Text>
+                    <View style={mck.divider} />
+                    <Text style={mck.line}>{MOCKUP_DATA[opt.key]?.line1 ?? ''}</Text>
+                    <Text style={mck.line}>{MOCKUP_DATA[opt.key]?.line2 ?? ''}</Text>
+                    <Text style={mck.line}>{MOCKUP_DATA[opt.key]?.line3 ?? ''}</Text>
+                    <View style={mck.divider} />
+                    <Text style={mck.ref}>{MOCKUP_DATA[opt.key]?.ref ?? ''}</Text>
+                  </View>
+                  <Text style={sel ? styles.carouselTitleSelected : styles.carouselTitle}>
+                    {opt.label}
+                  </Text>
+                  <Text style={styles.carouselDesc}>{opt.desc}</Text>
+                  <TouchableOpacity
+                    style={sel ? styles.carouselSelectBtnActive : styles.carouselSelectBtn}
+                    onPress={() => updateField('layoutType', opt.key)}
+                  >
+                    <Text style={sel ? styles.carouselSelectTextActive : styles.carouselSelectText}>
+                      {sel ? 'Selected' : 'Select'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+
+            {/* Navigation arrows */}
+            <View style={styles.carouselNav}>
+              <TouchableOpacity
+                style={layoutIdx === 0 ? styles.carouselArrowDisabled : styles.carouselArrow}
+                onPress={() => { if (layoutIdx > 0) setLayoutIdx(layoutIdx - 1); }}
+                disabled={layoutIdx === 0}
+              >
+                <Text style={styles.carouselArrowText}>{'<'}</Text>
               </TouchableOpacity>
-            ))}
+
+              <Text style={styles.carouselCounter}>
+                {layoutIdx + 1} / {LAYOUT_OPTIONS.length}
+              </Text>
+
+              <TouchableOpacity
+                style={layoutIdx === LAYOUT_OPTIONS.length - 1 ? styles.carouselArrowDisabled : styles.carouselArrow}
+                onPress={() => { if (layoutIdx < LAYOUT_OPTIONS.length - 1) setLayoutIdx(layoutIdx + 1); }}
+                disabled={layoutIdx === LAYOUT_OPTIONS.length - 1}
+              >
+                <Text style={styles.carouselArrowText}>{'>'}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Dots */}
+            <View style={styles.carouselDots}>
+              {LAYOUT_OPTIONS.map((opt, i) => (
+                <View
+                  key={opt.key}
+                  style={i === layoutIdx ? styles.carouselDotActive : styles.carouselDot}
+                />
+              ))}
+            </View>
           </View>
         );
 
@@ -443,21 +657,21 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                {data.gatekeeperQuestions.length > 1 && (
+                <View style={data.gatekeeperQuestions.length > 1 ? styles.visible : styles.hiddenSafe}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('gatekeeperQuestions', i)}
                   >
                     <Text style={styles.removeBtnText}>×</Text>
                   </TouchableOpacity>
-                )}
+                </View>
               </View>
             ))}
             <TouchableOpacity
               style={styles.addBtn}
               onPress={() => addListItem('gatekeeperQuestions')}
             >
-              <Text style={[styles.addBtnText, { color: data.accentColor }]}>
+              <Text style={styles.addBtnTextAccent}>
                 + Add Question
               </Text>
             </TouchableOpacity>
@@ -467,7 +681,7 @@ export default function SetupWizard() {
       case 7:
         return (
           <View>
-            <Text style={styles.stepTitle}>Community Rules</Text>
+            <Text style={styles.stepTitle}>App Rules</Text>
             <Text style={styles.stepDesc}>
               Set ground rules for your members. These will be shown during
               onboarding.
@@ -484,21 +698,21 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                {data.communityRules.length > 1 && (
+                <View style={data.communityRules.length > 1 ? styles.visible : styles.hiddenSafe}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('communityRules', i)}
                   >
                     <Text style={styles.removeBtnText}>×</Text>
                   </TouchableOpacity>
-                )}
+                </View>
               </View>
             ))}
             <TouchableOpacity
               style={styles.addBtn}
               onPress={() => addListItem('communityRules')}
             >
-              <Text style={[styles.addBtnText, { color: data.accentColor }]}>
+              <Text style={styles.addBtnTextAccent}>
                 + Add Rule
               </Text>
             </TouchableOpacity>
@@ -515,27 +729,16 @@ export default function SetupWizard() {
             {PRICING_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt.key}
-                style={[
-                  styles.layoutCard,
-                  data.pricingType === opt.key && {
-                    borderColor: data.accentColor,
-                    backgroundColor: data.accentColor + '10',
-                  },
-                ]}
+                style={data.pricingType === opt.key ? styles.layoutCardActive : styles.layoutCard}
                 onPress={() => updateField('pricingType', opt.key)}
               >
-                <Text
-                  style={[
-                    styles.layoutTitle,
-                    data.pricingType === opt.key && { color: data.accentColor },
-                  ]}
-                >
+                <Text style={data.pricingType === opt.key ? styles.layoutTitleActive : styles.layoutTitle}>
                   {opt.label}
                 </Text>
                 <Text style={styles.layoutDesc}>{opt.desc}</Text>
               </TouchableOpacity>
             ))}
-            {data.pricingType === 'SUBSCRIPTION' && (
+            <View style={data.pricingType === 'SUBSCRIPTION' ? styles.visible : styles.hiddenSafe}>
               <InputField
                 label="Monthly Price ($)"
                 placeholder="9.99"
@@ -543,8 +746,8 @@ export default function SetupWizard() {
                 onChangeText={(text) => updateField('subscriptionPrice', text)}
                 keyboardType="decimal-pad"
               />
-            )}
-            {data.pricingType === 'TOKEN' && (
+            </View>
+            <View style={data.pricingType === 'TOKEN' ? styles.visible : styles.hiddenSafe}>
               <InputField
                 label="Token Cost (per action)"
                 placeholder="5"
@@ -552,16 +755,11 @@ export default function SetupWizard() {
                 onChangeText={(text) => updateField('tokenCost', text)}
                 keyboardType="number-pad"
               />
-            )}
+            </View>
             <View style={styles.toggleRow}>
               <Text style={styles.toggleLabel}>Accept All-Access Passport?</Text>
               <TouchableOpacity
-                style={[
-                  styles.toggle,
-                  data.acceptsPassport && {
-                    backgroundColor: data.accentColor,
-                  },
-                ]}
+                style={data.acceptsPassport ? styles.toggleActive : styles.toggle}
                 onPress={() =>
                   updateField('acceptsPassport', !data.acceptsPassport)
                 }
@@ -579,12 +777,12 @@ export default function SetupWizard() {
           <View>
             <Text style={styles.stepTitle}>Welcome & Extras</Text>
             <Text style={styles.stepDesc}>
-              Set a welcome message and optional features for your community.
+              Set a welcome message and optional features for your app.
             </Text>
             <InputField
               label="Welcome Message"
               hint="Shown to new members after they're approved"
-              placeholder="Welcome to our community! Here are some tips..."
+              placeholder="Welcome to our app! Here are some tips..."
               value={data.welcomeMessage}
               onChangeText={(text) => updateField('welcomeMessage', text)}
               multiline
@@ -606,33 +804,28 @@ export default function SetupWizard() {
                     }
                   />
                 </View>
-                {data.customTags.length > 1 && (
+                <View style={data.customTags.length > 1 ? styles.visible : styles.hiddenSafe}>
                   <TouchableOpacity
                     style={styles.removeBtn}
                     onPress={() => removeListItem('customTags', i)}
                   >
                     <Text style={styles.removeBtnText}>×</Text>
                   </TouchableOpacity>
-                )}
+                </View>
               </View>
             ))}
             <TouchableOpacity
               style={styles.addBtn}
               onPress={() => addListItem('customTags')}
             >
-              <Text style={[styles.addBtnText, { color: data.accentColor }]}>
+              <Text style={styles.addBtnTextAccent}>
                 + Add Tag
               </Text>
             </TouchableOpacity>
             <View style={styles.toggleRow}>
               <Text style={styles.toggleLabel}>Enable Matchmaker Mode?</Text>
               <TouchableOpacity
-                style={[
-                  styles.toggle,
-                  data.matchmakerEnabled && {
-                    backgroundColor: data.accentColor,
-                  },
-                ]}
+                style={data.matchmakerEnabled ? styles.toggleActive : styles.toggle}
                 onPress={() =>
                   updateField('matchmakerEnabled', !data.matchmakerEnabled)
                 }
@@ -650,7 +843,7 @@ export default function SetupWizard() {
           <View>
             <Text style={styles.stepTitle}>Review & Launch</Text>
             <Text style={styles.stepDesc}>
-              Everything looks good? Let's launch your community!
+              Everything looks good? Let's launch your app!
             </Text>
             <View style={styles.reviewSection}>
               <ReviewRow label="Name" value={data.name} />
@@ -692,45 +885,62 @@ export default function SetupWizard() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <StatusBar style="dark" />
       <StepIndicator
         currentStep={step}
         totalSteps={TOTAL_STEPS}
-        accentColor={data.accentColor}
+        accentColor={safeColor(data.accentColor)}
       />
       <ScrollView
+        ref={scrollRef}
         style={styles.content}
         contentContainerStyle={styles.contentInner}
         keyboardShouldPersistTaps="handled"
       >
-        {renderStep()}
+        {/* All 10 steps always in tree — only current step visible (iOS Fabric safe) */}
+        {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+          <View key={`step-${i + 1}`} style={step === i + 1 ? styles.stepVisible : styles.stepHidden}>
+            {renderStepContent(i + 1)}
+          </View>
+        ))}
       </ScrollView>
       <View style={styles.footer}>
-        {step > 1 && (
+        {/* Back button always in tree — hide on step 1 via opacity to prevent tree mutation */}
+        <View style={step > 1 ? styles.visible : styles.hiddenKeepLayout}>
           <WizardButton
             title="Back"
             variant="ghost"
             onPress={prevStep}
+            disabled={step <= 1}
           />
-        )}
+        </View>
         <View style={styles.spacer} />
-        {step < TOTAL_STEPS ? (
-          <WizardButton
-            title="Next"
-            accentColor={data.accentColor}
-            onPress={nextStep}
-          />
-        ) : (
-          <WizardButton
-            title="Launch Community"
-            accentColor={data.accentColor}
-            onPress={handleFinalize}
-            loading={loading}
-          />
-        )}
+        {/* Overlay slot: both buttons always absolute, only opacity toggles (iOS Fabric safe) */}
+        <View style={styles.footerBtnSlot}>
+          <View style={[styles.footerBtnLayer, step < TOTAL_STEPS ? styles.layerVisible : styles.layerHidden]}>
+            <WizardButton
+              title="Next"
+              accentColor={safeColor(data.accentColor)}
+              onPress={nextStep}
+              disabled={step >= TOTAL_STEPS}
+            />
+          </View>
+          <View style={[styles.footerBtnLayer, step >= TOTAL_STEPS ? styles.layerVisible : styles.layerHidden]}>
+            <WizardButton
+              title="Launch Your App"
+              accentColor={safeColor(data.accentColor)}
+              onPress={handleFinalize}
+              loading={loading}
+              disabled={step < TOTAL_STEPS}
+            />
+          </View>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -744,49 +954,154 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F10' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { flex: 1 },
   contentInner: { padding: 24, paddingBottom: 40 },
   stepTitle: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     marginBottom: 8,
   },
-  stepDesc: { color: '#888892', fontSize: 15, marginBottom: 24, lineHeight: 22 },
+  stepDesc: { color: '#6B6B73', fontSize: 15, marginBottom: 24, lineHeight: 22 },
   fieldLabel: {
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     fontSize: 15,
     fontWeight: '600',
     marginBottom: 4,
   },
-  hint: { color: '#888892', fontSize: 13, marginBottom: 8 },
+  fieldLabelSpaced: {
+    color: '#1C1C1E',
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 4,
+    marginTop: 24,
+  },
+  hint: { color: '#6B6B73', fontSize: 13, marginBottom: 8 },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#1A1A1D',
+    borderTopColor: '#E5E5EA',
   },
   spacer: { flex: 1 },
-  optionRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+  optionRow: { flexDirection: 'row', marginBottom: 20 },
   optionChip: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2A2A2E',
+    borderColor: '#E5E5EA',
+    marginRight: 12,
   },
-  optionChipText: { color: '#888892', fontSize: 14, fontWeight: '500' },
+  optionChipText: { color: '#6B6B73', fontSize: 14, fontWeight: '500' },
+  optionChipActive: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E63946',
+    backgroundColor: '#F5F5F7',
+    marginRight: 12,
+  },
+  optionChipTextActive: { color: '#E63946', fontSize: 14, fontWeight: '500' },
   layoutCard: {
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2E',
+    borderColor: '#E5E5EA',
     marginBottom: 12,
   },
-  layoutTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
-  layoutDesc: { color: '#888892', fontSize: 13, marginTop: 4 },
+  layoutCardActive: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E63946',
+    backgroundColor: '#F5F5F7',
+    marginBottom: 12,
+  },
+  layoutTitle: { color: '#1C1C1E', fontSize: 16, fontWeight: '600' },
+  layoutTitleActive: { color: '#E63946', fontSize: 16, fontWeight: '600' },
+  layoutDesc: { color: '#6B6B73', fontSize: 13, marginTop: 4 },
+  layoutRef: { color: '#8E8E93', fontSize: 11, fontStyle: 'italic', marginTop: 4 },
+  carouselCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#E5E5EA',
+    padding: 20,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  carouselCardSelected: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#E63946',
+    padding: 20,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  carouselCardHidden: {
+    opacity: 0,
+    position: 'absolute' as const,
+    width: 0,
+    height: 0,
+    overflow: 'hidden' as const,
+  },
+  carouselTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginTop: 12 },
+  carouselTitleSelected: { fontSize: 18, fontWeight: '700', color: '#E63946', marginTop: 12 },
+  carouselDesc: { fontSize: 13, color: '#6B6B73', textAlign: 'center', marginTop: 4, lineHeight: 18 },
+  carouselSelectBtn: {
+    marginTop: 14,
+    paddingHorizontal: 28,
+    paddingVertical: 8,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+    backgroundColor: '#F5F5F7',
+  },
+  carouselSelectBtnActive: {
+    marginTop: 14,
+    paddingHorizontal: 28,
+    paddingVertical: 8,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E63946',
+    backgroundColor: '#E63946',
+  },
+  carouselSelectText: { fontSize: 14, fontWeight: '700', color: '#1C1C1E' },
+  carouselSelectTextActive: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  carouselNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  carouselArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 1,
+  },
+  carouselArrowDisabled: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.3,
+  },
+  carouselArrowText: { fontSize: 20, fontWeight: '700', color: '#1C1C1E' },
+  carouselCounter: { fontSize: 14, color: '#6B6B73', fontWeight: '600', marginLeft: 20, marginRight: 20 },
+  carouselDots: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
+  carouselDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E5E5EA', marginHorizontal: 3 },
+  carouselDotActive: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E63946', marginHorizontal: 3 },
   listRow: { flexDirection: 'row', alignItems: 'flex-start' },
   listInputWrap: { flex: 1 },
   removeBtn: {
@@ -795,13 +1110,14 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#2A2A2E',
+    backgroundColor: '#F5F5F7',
     alignItems: 'center',
     justifyContent: 'center',
   },
   removeBtnText: { color: '#E63946', fontSize: 18, fontWeight: '700' },
   addBtn: { paddingVertical: 12 },
   addBtnText: { fontSize: 15, fontWeight: '600' },
+  addBtnTextAccent: { fontSize: 15, fontWeight: '600', color: '#E63946' },
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -809,16 +1125,22 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 12,
   },
-  toggleLabel: { color: '#FFFFFF', fontSize: 15 },
+  toggleLabel: { color: '#1C1C1E', fontSize: 15 },
   toggle: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#2A2A2E',
+    backgroundColor: '#F5F5F7',
   },
-  toggleText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
+  toggleActive: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#E63946',
+  },
+  toggleText: { color: '#1C1C1E', fontSize: 13, fontWeight: '600' },
   reviewSection: {
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#F5F5F7',
     borderRadius: 12,
     padding: 16,
   },
@@ -827,8 +1149,88 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#2A2A2E',
+    borderBottomColor: '#E5E5EA',
   },
-  reviewLabel: { color: '#888892', fontSize: 14 },
-  reviewValue: { color: '#FFFFFF', fontSize: 14, fontWeight: '500', maxWidth: '60%', textAlign: 'right' },
+  reviewLabel: { color: '#6B6B73', fontSize: 14 },
+  reviewValue: { color: '#1C1C1E', fontSize: 14, fontWeight: '500', maxWidth: '60%', textAlign: 'right' },
+  logoPicker: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#E5E5EA',
+    marginBottom: 8,
+  },
+  logoImage: { width: 96, height: 96, borderRadius: 14 },
+  logoPlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F5F7',
+  },
+  logoPlaceholderText: { fontSize: 14, color: '#6B6B73', fontWeight: '600' },
+  logoRemoveText: { color: '#E63946', fontSize: 13, fontWeight: '600', marginBottom: 16 },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+  colorSwatch: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 4,
+  },
+  colorSwatchInactive: {
+    borderWidth: 2,
+    borderColor: '#F5F5F7',
+  },
+  colorSwatchActive: {
+    borderColor: '#1C1C1E',
+    borderWidth: 3,
+  },
+  colorCheck: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
+  themePreviewDark: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    marginTop: 8,
+    backgroundColor: '#1C1C1E',
+    borderColor: '#2C2C2E',
+  },
+  themePreviewLight: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    marginTop: 8,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E5EA',
+  },
+  themePreviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  themePreviewLogo: { width: 36, height: 36, borderRadius: 8, marginRight: 10 },
+  themePreviewLogoFallback: { width: 36, height: 36, borderRadius: 8, marginRight: 10, backgroundColor: '#E63946' },
+  themePreviewNameDark: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  themePreviewNameLight: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
+  themePreviewBar: { height: 4, borderRadius: 2, marginBottom: 10 },
+  themePreviewBarFallback: { backgroundColor: '#E63946' },
+  themePreviewDescDark: { fontSize: 13, lineHeight: 18, color: '#8E8E93' },
+  themePreviewDescLight: { fontSize: 13, lineHeight: 18, color: '#6B6B73' },
+  visible: {},
+  hidden: { display: 'none' },
+  stepVisible: {},
+  stepHidden: { display: 'none' as const },
+  hiddenKeepLayout: { opacity: 0 },
+  hiddenSafe: { opacity: 0, position: 'absolute' as const, width: 0, height: 0, overflow: 'hidden' as const },
+  logoPickerInner: { flex: 1 },
+  colorCheckHidden: { fontSize: 18, fontWeight: '700', color: 'transparent' },
+  footerBtnSlot: { position: 'relative' as const, minWidth: 140, height: 48 },
+  footerBtnLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 },
+  layerVisible: { opacity: 1 },
+  layerHidden: { opacity: 0 },
 });

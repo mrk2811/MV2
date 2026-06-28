@@ -4,6 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   ActivityIndicator,
   Alert,
@@ -39,8 +43,16 @@ export default function SignInScreen() {
         setPendingVerification(true);
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to send code';
+      const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
+      const firstErr = clerkErr.errors?.[0];
+      let message = 'Failed to send code';
+      if (firstErr?.code === 'form_identifier_not_found') {
+        message = 'No account found with this phone number. Try signing up instead.';
+      } else if (firstErr?.longMessage || firstErr?.message) {
+        message = firstErr.longMessage || firstErr.message || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
@@ -55,93 +67,108 @@ export default function SignInScreen() {
         strategy: 'phone_code',
         code,
       });
+      const sessionId = result.createdSessionId ?? signIn?.createdSessionId;
 
-      if (result.status === 'complete' && result.createdSessionId) {
-        await setActive({ session: result.createdSessionId });
-        router.replace('/');
+      if (result.status === 'complete' && sessionId) {
+        await setActive({ session: sessionId });
+      } else if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId as string });
+      } else {
+        Alert.alert('Verification', `Unexpected status: ${result.status}. Please try again.`);
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Invalid verification code';
+      const clerkErr = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> };
+      const firstErr = clerkErr.errors?.[0];
+      let message = 'Invalid verification code';
+      if (firstErr?.longMessage || firstErr?.message) {
+        message = firstErr.longMessage || firstErr.message || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, code, signIn, setActive, router]);
+  }, [isLoaded, code, signIn, setActive]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.logo}>MV2</Text>
-      <Text style={styles.title}>Welcome Back</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <Text style={styles.logo}>MV2</Text>
+        <Text style={styles.title}>Welcome Back</Text>
 
-      {!pendingVerification ? (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Phone number (+1...)"
-            placeholderTextColor="#555"
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-          />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={onSendCode}
-            disabled={loading || !phone}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.buttonText}>Send Code</Text>
-            )}
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          <Text style={styles.subtitle}>
-            Enter the code sent to {phone}
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Verification code"
-            placeholderTextColor="#555"
-            value={code}
-            onChangeText={setCode}
-            keyboardType="number-pad"
-          />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={onVerifyCode}
-            disabled={loading || !code}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.buttonText}>Verify</Text>
-            )}
-          </TouchableOpacity>
-        </>
-      )}
+        {!pendingVerification ? (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Phone number (+1...)"
+              placeholderTextColor="#8E8E93"
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+              autoComplete="tel"
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={onSendCode}
+              disabled={loading || !phone}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.buttonText}>Send Code</Text>
+              )}
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={styles.subtitle}>
+              Enter the code sent to {phone}
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Verification code"
+              placeholderTextColor="#8E8E93"
+              value={code}
+              onChangeText={setCode}
+              keyboardType="number-pad"
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={onVerifyCode}
+              disabled={loading || !code}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.buttonText}>Verify</Text>
+              )}
+            </TouchableOpacity>
+          </>
+        )}
 
-      <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
-        <Text style={styles.link}>Don't have an account? Sign up</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
+          <Text style={styles.link}>Don't have an account? Sign up</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F10',
+    backgroundColor: '#FFFFFF',
     padding: 24,
     justifyContent: 'center',
   },
   logo: {
     fontSize: 36,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     letterSpacing: 4,
     textAlign: 'center',
     marginBottom: 8,
@@ -149,25 +176,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     textAlign: 'center',
     marginBottom: 32,
   },
   subtitle: {
     fontSize: 14,
-    color: '#888892',
+    color: '#6B6B73',
     textAlign: 'center',
     marginBottom: 16,
   },
   input: {
-    backgroundColor: '#1A1A1D',
+    backgroundColor: '#F5F5F7',
     borderRadius: 12,
     padding: 16,
-    color: '#FFFFFF',
+    color: '#1C1C1E',
     fontSize: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2D',
+    borderColor: '#E5E5EA',
   },
   button: {
     backgroundColor: '#E63946',
